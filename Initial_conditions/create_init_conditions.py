@@ -85,7 +85,6 @@ class Simulation:
                                         # total number of beads
                                         
         self.npols['short'] = int(self.nbeads['short']/self.nbeads_per_pol['short'])
-                                
         
         self.totnpols = self.npols['long'] + self.npols['short']
         
@@ -120,7 +119,13 @@ class Simulation:
                 self.bl, self.box_length, bead_id) )
             pol_id += 1
             bead_id += self.nbeads_per_pol['short']  
-          
+
+        print bead_id
+        print self.npols['short'], self.nbeads_per_pol['short']
+        print self.nbeads_per_pol['short']*self.npols['short']
+        print self.nbeads_per_pol['long']*self.npols['long']
+        print (self.nbeads_per_pol['long'])*self.npols['long']+(self.nbeads_per_pol['short'])*self.npols['short']
+        print self.totnbeads          
         return pols
    
 ###########################################################################        
@@ -131,8 +136,8 @@ class Polymer:
         """ INPUTS:
             idx: polymer index,
             nbpp: number of beads per polymer,
-            r0: bond length
-            lbox: box length
+            r0: bond length,
+            lbox: box length,
             bid: starting bead index in the polymers array"""
         
         ### store the beginning of the global bead index in the polymers array
@@ -162,7 +167,7 @@ class Polymer:
 
         self.bonds = np.zeros((nbpp-1, 4), dtype=np.int32)
         for j in xrange(nbpp-1):
-            self.bonds[j,0] = bid+j+1
+            self.bonds[j,0] = j+1
             self.bonds[j,1] = 1
             self.bonds[j,2] = bid+j+1
             self.bonds[j,3] = bid+j+1+1 
@@ -171,7 +176,7 @@ class Polymer:
         
         self.angles = np.zeros((nbpp-2, 5), dtype=np.int32)
         for j in xrange(nbpp-2):
-            self.angles[j,0] = bid+j+1
+            self.angles[j,0] = j+1
             self.angles[j,1] = 1
             self.angles[j,2] = bid+j+1
             self.angles[j,3] = bid+j+1+1
@@ -181,57 +186,159 @@ class Polymer:
 
 ###########################################################################
         
-def write_lammps_input(polymers, sim):
+def write_lammps_input(npols, x, y, z, bonds, angles, mol, tpe, lbox):
     """ write a lammps input file"""
     
-    # open file for reading
+    ### open file for writing
+    
     ofile = open('input.data', 'w') 
-    # comment
-    ofile.write('Ensemble of ' + str(nrod) + ' rods with ' + str(nbpr) + ' beads\n\n') 
-    # number of atoms, bons, and angles
+    
+    ### comment
+    
+    ofile.write('Ensemble of ' + str(npols) + \
+                ' polymers with bidispersity\n\n') 
+    
+    ### number of atoms, bonds, and angles
+    
     natoms = len(x)
     nbonds = len(bonds)
     nangles = len(angles)
     ofile.write(str(natoms) + ' atoms\n')
     ofile.write(str(nbonds) + ' bonds\n')
     ofile.write(str(nangles) + ' angles\n\n')
-    # atom, bond, and angle types
-    #ofile.write(str(nbpr)+ ' atom types\n')
+    
+    ### atom, bond, and angle types
+
     ofile.write('1 atom types\n')
     ofile.write('1 bond types\n')
     ofile.write('1 angle types\n\n')
-    # box dimensions
+    
+    ### box dimensions
     ofile.write('0.0 ' + str(lbox) + ' xlo xhi\n')
     ofile.write('0.0 ' + str(lbox) + ' ylo yhi\n')
     ofile.write('-5.0 5.0 zlo zhi\n\n')
-    # masses section
+    
+    ### masses section
+    
     ofile.write('Masses\n\n')
     ofile.write('1 1\n')
-#    for i in range(nbpr):
-#	ofile.write(str(i+1) + ' 1.0\n')
     ofile.write('\n')
-    # atoms section
+    
+    ### atoms section
+    
     ofile.write('Atoms\n\n')
     for i in range(natoms):
-        # atom-ID, molecule-ID, atom-type, x,y,z
-        ofile.write(str(i + 1) + ' ' + str(mol[i]) + ' ' + str(tpe[i]) +  ' ' + str(x[i]) + ' ' + str(y[i]) + ' ' + str(z[i]) + '\n')
+        
+        ### atom-ID, molecule-ID, atom-type, x, y, z
+        
+        ofile.write(str(i+1) + ' ' + str(mol[i]) + ' ' + \
+                    str(tpe[i]) +  ' ' + str(x[i]) + ' ' + \
+                    str(y[i]) + ' ' + str(z[i]) + '\n')
     ofile.write('\n')
-    # bonds section
+    
+    ### bonds section
+    
     ofile.write('Bonds\n\n')
     for i in range(nbonds):
-        ofile.write(str(bonds[i,0]) + ' ' + str(bonds[i,1]) + ' ' + str(bonds[i,2]) + ' ' + str(bonds[i,3]) +  '\n')
+        ofile.write(str(bonds[i,0]) + ' ' + \
+                    str(bonds[i,1]) + ' ' + str(bonds[i,2]) + \
+                    ' ' + str(bonds[i,3]) +  '\n')
     ofile.write('\n')
-    # angles section
+    
+    ### angles section
+    
     ofile.write('Angles\n\n')
     for i in range(nangles):
-        ofile.write(str(angles[i,0]) + ' ' + str(angles[i,1]) + ' ' + str(angles[i,2]) + ' ' + str(angles[i,3]) + ' ' + str(angles[i,4]) + '\n')
+        ofile.write(str(angles[i,0]) + ' ' + \
+                    str(angles[i,1]) + ' ' + str(angles[i,2]) + \
+                    ' ' + str(angles[i,3]) + ' ' + \
+                    str(angles[i,4]) + '\n')
     ofile.write('\n')
-    # close the file
+    
+    ### close the file
+    
     ofile.close()
-    # print stats
-    print 'Created box with',str(nrod),'rods'
+    
+    ### print stats
+    
+    print 'Created box with ', str(npols), ' polymers'
     
     return
+
+###########################################################################
+
+def write_dummy_xyz(x,y,z):
+    """ write a xyz file for testing purposes"""
+    
+    natoms = len(x)
+    ofile = open('dummy.xyz', 'w')
+    ofile.write(str(natoms) + '\n')
+    ofile.write('comment line\n')
+    for i in range(natoms):
+        ofile.write('C\t' + str(x[i]) + '\t' + str(y[i]) + '\t' + str(z[i]) + '\n')
+    ofile.close()
+    
+    return
+    
+###########################################################################
+
+def serialize_data(polymers, sim):
+    """ reformat the data into arrays and primitive data types"""
+
+    ### allocation
+    
+    x = np.zeros((sim.totnbeads), dtype=np.float32)
+    y = np.zeros((sim.totnbeads), dtype=np.float32)
+    z = np.zeros((sim.totnbeads), dtype=np.float32)
+    mol = np.zeros((sim.totnbeads), dtype=np.int32)
+    tpe = np.ones((sim.totnbeads), dtype=np.int32)
+    
+    ### coordinates
+    
+    k = 0
+    for n in xrange(sim.totnpols):
+        mol[k] = n
+        if n < sim.npols['long']:
+            nbeads_per_pol = sim.nbeads_per_pol['long']
+        else:
+            nbeads_per_pol = sim.nbeads_per_pol['short']            
+        for j in xrange(nbeads_per_pol):
+            x[k] = polymers[n].r[0, j]
+            y[k] = polymers[n].r[1, j]
+            k += 1
+        
+    ### bonds
+    
+    nbonds = sim.npols['long']*(sim.nbeads_per_pol['long']-1) + \
+            sim.npols['short']*(sim.nbeads_per_pol['short']-1)
+    bonds = np.zeros((nbonds, 4), dtype=np.int32)
+    
+    k = 0
+    for n in xrange(sim.totnpols):
+        for j in xrange(len(polymers[n].bonds[:, 0])):
+            bonds[k+j, 0] = polymers[n].bonds[j, 0] + k
+            bonds[k+j, 1] = polymers[n].bonds[j, 1]
+            bonds[k+j, 2] = polymers[n].bonds[j, 2]
+            bonds[k+j, 3] = polymers[n].bonds[j, 3] 
+        k += len(polymers[n].bonds[:, 0])
+    
+    ### angles
+    
+    nangles = sim.npols['long']*(sim.nbeads_per_pol['long']-2) + \
+            sim.npols['short']*(sim.nbeads_per_pol['short']-2)
+    angles = np.zeros((nangles, 5), dtype=np.int32)
+    
+    k = 0
+    for n in xrange(sim.totnpols):
+        for j in xrange(len(polymers[n].angles[:, 0])):
+            angles[k+j, 0] = polymers[n].angles[j, 0] + k
+            angles[k+j, 1] = polymers[n].angles[j, 1]
+            angles[k+j, 2] = polymers[n].angles[j, 2] 
+            angles[k+j, 3] = polymers[n].angles[j, 3] 
+            angles[k+j, 4] = polymers[n].angles[j, 4]
+        k += len(polymers[n].angles[:, 0])
+        
+    return sim.totnpols, x, y, z, bonds, angles, mol, tpe, sim.box_length
     
 ###########################################################################
 
@@ -263,8 +370,10 @@ def main():
 
     ### write the input file
     
-    write_lammps_input(polymers, sim)
-#    write_dummy_xyz(x, y, z)
+    npols, x, y, z, bonds, angles, mol, tpe, lbox = serialize_data(polymers, sim)
+    print bonds
+    write_lammps_input(npols, x, y, z, bonds, angles, mol, tpe, lbox)
+    write_dummy_xyz(x, y, z)
     
     return
 
