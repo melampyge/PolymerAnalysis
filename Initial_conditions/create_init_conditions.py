@@ -278,7 +278,8 @@ def write_dummy_xyz(x, y, z, folder):
 ###########################################################################
 
 def serialize_data(polymers, sim):
-    """ reformat the data into arrays and primitive data types"""
+    """ reformat the data into arrays and primitive data types
+    this is a quick fix, that needs to be changed!"""
 
     ### allocation
     
