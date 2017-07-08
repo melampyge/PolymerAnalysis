@@ -18,11 +18,11 @@ import numpy as np
 import argparse
 import random
 import math
+import os
 
 ###########################################################################
 
 class Simulation:   
-    
     
     def __init__(self, llong, lshort, dens, npl):
         
@@ -80,13 +80,14 @@ class Simulation:
         nbeads['long'] = self.npols['long']*self.nbeads_per_pol['long']
         nbeads['short'] = nbeads['long']
         self.nbeads = nbeads            # total number of beads per polymer type
-        
-        self.totnbeads = self.nbeads['long'] + self.nbeads['short']
-                                        # total number of beads
                                         
         self.npols['short'] = int(self.nbeads['short']/self.nbeads_per_pol['short'])
-        
+        self.nbeads['short'] = self.npols['short']*self.nbeads_per_pol['short']
+
+        self.totnbeads = self.nbeads['long'] + self.nbeads['short']
+                                        # total number of beads        
         self.totnpols = self.npols['long'] + self.npols['short']
+                                        # total number of polymers
         
         return
         
@@ -118,14 +119,8 @@ class Simulation:
             pols.append( Polymer(pol_id+1, self.nbeads_per_pol['short'], \
                 self.bl, self.box_length, bead_id) )
             pol_id += 1
-            bead_id += self.nbeads_per_pol['short']  
-
-        print bead_id
-        print self.npols['short'], self.nbeads_per_pol['short']
-        print self.nbeads_per_pol['short']*self.npols['short']
-        print self.nbeads_per_pol['long']*self.npols['long']
-        print (self.nbeads_per_pol['long'])*self.npols['long']+(self.nbeads_per_pol['short'])*self.npols['short']
-        print self.totnbeads          
+            bead_id += self.nbeads_per_pol['short']   
+        
         return pols
    
 ###########################################################################        
@@ -186,12 +181,12 @@ class Polymer:
 
 ###########################################################################
         
-def write_lammps_input(npols, x, y, z, bonds, angles, mol, tpe, lbox):
+def write_lammps_input(npols, x, y, z, bonds, angles, mol, tpe, lbox, folder):
     """ write a lammps input file"""
     
     ### open file for writing
     
-    ofile = open('input.data', 'w') 
+    ofile = open(folder + 'input.data', 'w') 
     
     ### comment
     
@@ -267,11 +262,11 @@ def write_lammps_input(npols, x, y, z, bonds, angles, mol, tpe, lbox):
 
 ###########################################################################
 
-def write_dummy_xyz(x,y,z):
+def write_dummy_xyz(x, y, z, folder):
     """ write a xyz file for testing purposes"""
     
     natoms = len(x)
-    ofile = open('dummy.xyz', 'w')
+    ofile = open(folder + 'dummy.xyz', 'w')
     ofile.write(str(natoms) + '\n')
     ofile.write('comment line\n')
     for i in range(natoms):
@@ -353,10 +348,14 @@ def get_input_opts():
     parser.add_argument("-ls", "--lshort", 
                         type=float, help="Length of the short polymers")    
     parser.add_argument("-npl", "--npolsl", 
-                        type=int, help="Number of long polymers in the simulation")        
+                        type=int, help="Number of long polymers in the simulation")  
+    parser.add_argument("-fd", "--folder",
+                        type=str, help="Specify the folder to save the data inside")      
     args = parser.parse_args()
     
-    return args.llong, args.lshort, args.density, args.npolsl
+    os.system("mkdir -p " + args.folder)
+    
+    return args.llong, args.lshort, args.density, args.npolsl, args.folder
     
 ###########################################################################
 
@@ -364,16 +363,15 @@ def main():
     
     ### specify parameters
     
-    lpol_long, lpol_short, density, npols_long = get_input_opts()   
+    lpol_long, lpol_short, density, npols_long, folder = get_input_opts()   
     sim = Simulation(lpol_long, lpol_short, density, npols_long)
     polymers = sim.gen_polymers()
 
     ### write the input file
     
     npols, x, y, z, bonds, angles, mol, tpe, lbox = serialize_data(polymers, sim)
-    print bonds
-    write_lammps_input(npols, x, y, z, bonds, angles, mol, tpe, lbox)
-    write_dummy_xyz(x, y, z)
+    write_lammps_input(npols, x, y, z, bonds, angles, mol, tpe, lbox, folder)
+    write_dummy_xyz(x, y, z, folder)
     
     return
 
