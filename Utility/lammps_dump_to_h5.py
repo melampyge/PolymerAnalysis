@@ -314,7 +314,7 @@ def main():
     
     ### generate polymer data
     
-    com = calculate_com_of_pols_one_liner(xu, sim.nsteps, sim.nbpp, sim.beads)
+    com = calculate_com_of_pols_one_liner(xu, sim.nsteps, sim.nbpp, sim.nbeads)
     
     ### write the data in hdf5 format 
     
