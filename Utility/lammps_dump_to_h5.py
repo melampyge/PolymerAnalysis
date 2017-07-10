@@ -65,8 +65,6 @@ def read_contextual_info():
     
     args.nbpp_long = int(args.llong/args.bl+1)
     args.nbpp_short = int(args.lshort/args.bl+1) 
-    print "nbpp_long = ", str(args.nbpp_long)
-    print "nbpp_short = ", str(args.nbpp_short)
     
     ### determine number of beads per polymer type in total
     
@@ -79,16 +77,12 @@ def read_contextual_info():
     
     ### determine number of beads per short polymers
     
-    print "npolss = ", str(args.npolss)
     args.nbeads_short = args.npolss*args.nbpp_short
-    print "nbeads_short = ", str(args.nbeads_short)
     
     ### determine total number of beads and polymers
     
     args.totnbeads = args.nbeads_long + args.nbeads_short
     args.totnpols = args.npolsl + args.npolss
-    print "totnbeads = ", str(args.totnbeads)
-    print "totnpols = ", str(args.totnpols)
         
     ### determine box information 
     
