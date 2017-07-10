@@ -66,7 +66,7 @@ class SimulationBidispersePolymers(Simulation):
         
         l = self.get_length_of_polymer(nb)
         
-        return self.fp*l**2/self
+        return self.fp*l**2/self.kT
     
     def get_xil_of_polymer(self, nb):
         """ calculate the persistence length of the polymer"""
