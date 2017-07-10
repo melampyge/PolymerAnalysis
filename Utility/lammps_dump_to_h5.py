@@ -94,7 +94,7 @@ def read_contextual_info():
     
     ### total number of steps
     
-    args.nsteps = args.tstep/args.nsamp
+    args.nsteps = args.last_tstep/args.nsamp
     args.nsteps += 1
     
     ### restructure the data 
