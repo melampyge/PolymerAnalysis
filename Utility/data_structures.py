@@ -61,19 +61,19 @@ class SimulationBidispersePolymers(Simulation):
         
         return nb*self.bond_length
     
-    def get_pe_of_polymer(self, f, nb):
+    def get_pe_of_polymer(self, nb):
         """ calculate the peclet number of the polymer"""
         
         l = self.get_length_of_polymer(nb)
         
-        return f*l**2/self
+        return self.fp*l**2/self
     
-    def get_xil_of_polymer(self, k, nb):
+    def get_xil_of_polymer(self, nb):
         """ calculate the persistence length of the polymer"""
         
         l = self.get_length_of_polymer(nb)
 
-        return k/self.kT/l
+        return self.kappa/self.kT/l
     
 ##############################################################################
 
