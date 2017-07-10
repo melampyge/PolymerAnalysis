@@ -236,6 +236,7 @@ def write_h5_file(xu, comu, sim):
     ### file path
     
     fpath = sim.folder + 'out.h5'
+    print "Writing data to ", fpath
     fl = h5py.File(fpath, 'w')
     
     ### positions of beads
