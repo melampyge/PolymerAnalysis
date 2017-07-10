@@ -94,3 +94,13 @@ def read_sim_info(folder):
     
 ##############################################################################
 
+def read_h5_file(folder):
+    """ read all of the hdf5 file"""
+    
+    beads = read_bead_data(folder)
+    pols = read_polymer_data(folder)
+    sim = read_sim_info(folder)
+    
+    return beads, pols, sim
+    
+##############################################################################    

@@ -32,8 +32,8 @@ def coords_per_pols(x, y, nbpp):
     """ get the coordinates of beads in terms of polymers"""
     
     splitter = np.cumsum(nbpp)[:-1]
-    x_per_pol = np.split(x, splitter)
-    y_per_pol = np.split(y, splitter)
+    x_per_pol = np.split(x, splitter, axis=1)
+    y_per_pol = np.split(y, splitter, axis=1)
     
     return x_per_pol, y_per_pol
 
@@ -62,22 +62,37 @@ def get_img_pos(x, lx):
 
 ##############################################################################
 
-def calc_bond_orientations(x, y, nbpp):
+def get_pol_ids(nbeads, nbpp):
+    """ get the polymer identities of beads"""
+    
+    pid = np.zeros((nbeads), dtype=np.int32)
+    splitter = np.cumsum(nbpp)
+    begin_idx = 0
+    for j, end_idx in enumerate(splitter):
+        print j, begin_idx, end_idx
+        pid[begin_idx : end_idx] = j
+        begin_idx = end_idx
+    
+    return
+    
+##############################################################################
+
+def calc_bond_orientations(x, nsteps, nbeads, npols, nbpp):
     """ calculate the bond orientations"""
     
-    x_per_pol, y_per_pol = coords_per_pols(x, y, nbpp)
-    dx = [xpp[1:]-xpp[:-1] for xpp in x_per_pol]
-    dy = [ypp[1:]-ypp[:-1] for ypp in y_per_pol]
-
-    ### DEBUGGING
-    # I am looking for a 1D list of displacements in the end
-    # if that works
-
-    print np.shape(dx)
-    print dx
-    exit(1)
+    ori = np.zeros((nsteps, nbeads), dtype=np.float32)
+    for step in xrange(nsteps):
+        k = 0
+        for n in xrange(npols):
+            for j in xrange(nbpp[n]-1):
+                dr = x[step,:,k+1] - x[step,:,k]
+                ori[step][k] = np.atan2(dr[1], dr[0])
+                k += 1
+            dr = x[step,:,k+1] - x[step,:,k]
+            ori[step][k] = np.atan2(dr[1], dr[0])
+            k += 1                
     
-    return np.atan2(dy, dx)
+    return ori
     
 ##############################################################################
 
