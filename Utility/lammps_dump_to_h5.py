@@ -80,7 +80,7 @@ def read_contextual_info():
     ### determine number of beads per short polymers
     
     print "npolss = ", str(args.npolss)
-    args.nbeads_short = args.npolss/args.nbpp_short
+    args.nbeads_short = args.npolss*args.nbpp_short
     print "nbeads_short = ", str(args.nbeads_short)
     
     ### determine total number of beads and polymers
