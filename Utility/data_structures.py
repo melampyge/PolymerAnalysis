@@ -98,34 +98,3 @@ class SimulationBidispersePolymers(Simulation):
         return self.kappa/self.kT/l
     
 ##############################################################################
-
-class Subplots:
-    """ plot structure"""
-    
-    totcnt = -1             # Total number of subplots 
-    
-    def __init__(self, f, l, s, b, t):
-        self.fig = f        # Figure axes handle
-        self.length = l     # Length of the subplot box 
-        self.sep = s        # Separation distance between subplots 
-        self.beg = b        # Beginning (offset) in the figure box
-        self.tot = t        # Total number of subplots in the x direction
-        
-    def addSubplot(self):
-        """ add a subplot in the grid structure"""
-        
-        ## increase the number of subplots in the figure
-        
-        self.totcnt += 1
-        
-        ## get indices of the subplot in the figure
-        
-        self.nx = self.totcnt%(self.tot)
-        self.ny = self.totcnt/(self.tot)
-        
-        self.xbeg = self.beg + self.nx*self.length + self.nx*self.sep
-        self.ybeg = self.beg + self.ny*self.length + self.ny*self.sep
-        
-        return self.fig.add_axes([self.xbeg,self.ybeg,self.length,self.length])
-
-##############################################################################
