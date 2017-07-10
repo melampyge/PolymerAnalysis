@@ -37,7 +37,7 @@ class SimulationBidispersePolymers(Simulation):
     def __init__(self, datafolder, dt, density, nsteps, nbeads, \
                  npols, nbpp, bl, sigma, lx, ly, kappa, fp):
         
-        Simulation.__init__(datafolder, dt, density, nsteps, nbeads, \
+        Simulation.__init__(self, datafolder, dt, density, nsteps, nbeads, \
                  npols, nbpp, bl, sigma, lx, ly)
         self.kappa = kappa
         self.fp = fp
