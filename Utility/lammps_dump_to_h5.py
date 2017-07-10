@@ -253,9 +253,6 @@ def write_h5_file(xu, comu, sim):
     ### general information about the simulation
     
     info = fl.create_group('sim')
-    info.create_dataset('lx', data=sim.lx)
-    info.create_dataset('ly', data=sim.ly)
-    info.create_dataset('dt', data=sim.dt)
     info.create_dataset('nsteps', data=sim.nsteps)
     info.create_dataset('nbeads', data=sim.nbeads)
     info.create_dataset('npols', data=sim.npols)
@@ -269,6 +266,9 @@ def write_h5_file(xu, comu, sim):
     param.create_dataset('fp', data=sim.fp)
     param.create_dataset('bl', data=sim.bl)
     param.create_dataset('sigma', data=sim.sigma)
+    param.create_dataset('lx', data=sim.lx)
+    param.create_dataset('ly', data=sim.ly)
+    param.create_dataset('dt', data=sim.dt)
     
     fl.close()
     
