@@ -103,11 +103,11 @@ def read_contextual_info():
     nbpp[0:args.npolsl] *= args.nbpp_long
     nbpp[args.npolsl:] *= args.nbpp_short
     
-    sim = data_structures.SimulationBidispersePolymers(folder, args.dt*args.nsamp, \
-                                     args.density, \
-                                     args.nsteps, args.totnbeads, args.totnpols, \
-                                     nbpp, args.bl, args.sigma, args.lx, args.ly, \
-                                     args.kappa, args.fp)
+    sim = data_structures.SimulationBidispersePolymers(folder, \
+                                     args.timestep*args.nsamp, args.density, \
+                                     args.nsteps, args.totnbeads, \
+                                     args.totnpols, nbpp, args.bl, args.sigma, \
+                                     args.lx, args.ly, args.kappa, args.fp)
     
     return sim, args.last_tstep
         
