@@ -6,6 +6,28 @@
 import numpy as np
 
 ##############################################################################
+        
+class Beads:
+    """ container for bead information"""
+    
+    def __init__(self, xu):
+        
+        self.xu = xu
+        
+        return
+        
+##############################################################################
+
+class Polymers:
+    """ container for polymer information"""
+    
+    def __init__(self, xu):
+        
+        self.xu = xu
+
+        return
+        
+##############################################################################
 
 class Simulation:
     """ container for general simulation information"""
