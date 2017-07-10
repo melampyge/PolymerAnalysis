@@ -21,8 +21,8 @@ import misc_tools
 ##############################################################################
 
 def read_contextual_info():
-    """ read the contextual information provided by the user
-    for bidisperse polymers"""
+    """ read the contextual information provided by the user'
+    specific for bidisperse polymers"""
     
     ### get the data folder and the last timestep info
     
@@ -229,50 +229,46 @@ def read_pos_from_dump_files(sim, T):
     
 ##############################################################################
     
-def write_h5_file(folder, x, d, mid, com, nbeads, nsteps, nbpc, lx, ly, args):
-    """ write data to hdf5 file"""
+def write_h5_file(xu, comu, sim):
+    """ write data to hdf5 file,
+    specific to bidisperse filament simulations"""
     
     ### file path
     
-    fpath = folder + '/out.h5'
+    fpath = sim.folder + 'out.h5'
     fl = h5py.File(fpath, 'w')
     
     ### positions of beads
     
     bead = fl.create_group('beads')
-    bead.create_dataset('xu', (nsteps, 2, nbeads), data=x, dtype=np.float32, compression='gzip') 
-    bead.create_dataset('cid', data=mid) 
+    bead.create_dataset('xu', (sim.nsteps, 2, sim.nbeads), data=xu, \
+                        dtype=np.float32, compression='gzip') 
     
+    ### polymer information
     
-    ### cell information
+    pols = fl.create_group('pols')
+    pols.create_dataset('comu', (sim.nsteps, 2, sim.npols), data=comu, \
+                        dtype=np.float32, compression='gzip') 
     
-    cell = fl.create_group('cells')
-    cell.create_dataset('comu', (nsteps, 2, args.ncells), data=com, dtype=np.float32, compression='gzip') 
-    cell.create_dataset('pol', (nsteps, args.ncells), data=d, dtype=np.float32, compression='gzip')
-    cell.create_dataset('nbpc', data=nbpc)
+    ### general information about the simulation
     
-    ### simulation information
+    info = fl.create_group('sim')
+    info.create_dataset('lx', data=sim.lx)
+    info.create_dataset('ly', data=sim.ly)
+    info.create_dataset('dt', data=sim.dt)
+    info.create_dataset('nsteps', data=sim.nsteps)
+    info.create_dataset('nbeads', data=sim.nbeads)
+    info.create_dataset('npols', data=sim.npols)
+    info.create_dataset('nbpp', data=sim.nbpp)
     
-    info = fl.create_group('info')
-    box = info.create_group('box')
-    box.create_dataset('x', data=lx)
-    box.create_dataset('y', data=ly)
-    info.create_dataset('dt', data=args.timestep)
-    info.create_dataset('nsteps', data=nsteps)
-    info.create_dataset('ncells', data=args.ncells)
-    info.create_dataset('nbeads', data=nbeads)
-    info.create_dataset('nsamp', data=args.nsamp)
+    ### simulation parameters  --- specific to analysis
     
-    ### simulation parameters
-    
-    param = fl.create_group('param')
-    param.create_dataset('eps', data=args.eps)
-    param.create_dataset('rho', data=args.density)
-    param.create_dataset('fp', data=args.fp)
-    param.create_dataset('areak', data=args.areak)
-    param.create_dataset('kappa', data=args.kappa)
-    param.create_dataset('bl', data=args.bl)
-    param.create_dataset('sigma', data=args.sigma)
+    param = fl.create_group('params')
+    param.create_dataset('density', data=sim.density)
+    param.create_dataset('kappa', data=sim.kappa)
+    param.create_dataset('fp', data=sim.fp)
+    param.create_dataset('bl', data=sim.bl)
+    param.create_dataset('sigma', data=sim.sigma)
     
     fl.close()
     
@@ -280,24 +276,24 @@ def write_h5_file(folder, x, d, mid, com, nbeads, nsteps, nbpc, lx, ly, args):
 
 ##############################################################################
     
-def calculate_com_of_pols(xu, nsteps, nbpc, args):   
+def calculate_com_of_pols(xu, nsteps, nbpp, npols):   
     """ calculate the center of mass of polymers"""
     
-    com = np.zeros((nsteps, 2, args.ncells), dtype=np.float32)
+    com = np.zeros((nsteps, 2, npols), dtype=np.float32)
     
     k = 0
-    for j in range(args.ncells):
-        com[:, :, j] = np.mean(xu[:, :, k:k+nbpc[j]], axis=2)
-        k += nbpc[j]
+    for j in range(npols):
+        com[:, :, j] = np.mean(xu[:, :, k:k+nbpp[j]], axis=2)
+        k += nbpp[j]
     
     return com
 
 ##############################################################################
     
-def calculate_com_of_pols_one_liner(xu, mid, nsteps, nbeads, nbpc):   
+def calculate_com_of_pols_one_liner(xu, nsteps, nbpp, nbeads):   
     """ calculate the center of mass of polymers"""
     
-    splitted = np.split(xu, np.cumsum(nbpc)[:-1], axis=2)
+    splitted = np.split(xu, np.cumsum(nbpp)[:-1], axis=2)
     r = np.array([np.mean(sfil, axis=2) for sfil in splitted])
     com = np.swapaxes(np.swapaxes(r, 0, 1), 1, 2)
     
@@ -313,15 +309,15 @@ def main():
     
     ### read the bead data
     
-    xu, d, mid = read_pos_from_dump_files(sim, last_tstep)
+    xu, mid = read_pos_from_dump_files(sim, last_tstep)
     
     ### generate polymer data
     
-    com = calculate_com_of_pols(xu, nsteps, nbpc, args)
+    com = calculate_com_of_pols_one_liner(xu, sim.nsteps, sim.nbpp, sim.beads)
     
     ### write the data in hdf5 format 
     
-    write_h5_file(folder, xu, d, mid, com, nbeads, nsteps, nbpc, lx, ly, args)
+    write_h5_file(xu, com, sim)
     
     return
     
