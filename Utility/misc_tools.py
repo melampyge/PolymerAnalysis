@@ -68,11 +68,16 @@ def calc_bond_orientations(x, y, nbpp):
     x_per_pol, y_per_pol = coords_per_pols(x, y, nbpp)
     dx = [xpp[1:]-xpp[:-1] for xpp in x_per_pol]
     dy = [ypp[1:]-ypp[:-1] for ypp in y_per_pol]
+
+    ### DEBUGGING
+    # I am looking for a 1D list of displacements in the end
+    # if that works
+
     print np.shape(dx)
     print dx
     exit(1)
     
-    return
+    return np.atan2(dy, dx)
     
 ##############################################################################
 
