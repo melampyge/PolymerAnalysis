@@ -16,14 +16,7 @@ import os
 import h5py
 import subprocess
 import data_structures
-
-##############################################################################
-
-def gen_folder_path(base, d, k, f):
-    """ generate folder path address from the parameters"""
-    
-    return base + 'density_' + str(d) + \
-        '/kappa_' + str(k) + '/fp_' + str(f) + '/'
+import misc_tools
 
 ##############################################################################
 
@@ -62,7 +55,7 @@ def read_contextual_info():
     
     ### generate folder path
     
-    folder = gen_folder_path(args.folder, args.density, args.kappa, args.fp)
+    folder = misc_tools.gen_folder_path(args.folder, args.density, args.kappa, args.fp)
     fl = folder + 'out1.dump'
     assert os.path.exists(fl), "\nOUT1.DUMP DOES NOT EXIST FOR: " + folder 
 
