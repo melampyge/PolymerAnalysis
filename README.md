@@ -1,4 +1,4 @@
-# DATA ANALYSIS TOOLKIT FOR BIDISPERSE POLYMERS:
+# DATA ANALYSIS TOOLKIT FOR BIDISPERSE POLYMERS
 
 A set of data analysis tools to analyse the collective motion of filaments/polymers with bimodal length distributions.
 
