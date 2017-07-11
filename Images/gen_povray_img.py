@@ -33,7 +33,28 @@ import data_structures
 import vapory
 import matplotlib.cm as cm
 import matplotlib.colors as mplcolors 
- 
+
+##############################################################################
+
+def get_args():
+    """ get the command line arguments"""
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-fd", "--folder", \
+                        help="Folder containing data, as in /local/duman/SIMULATIONS/Bidisperse_Filaments/.../")
+    parser.add_argument("-sb", "--savebase", nargs="?", \
+                        const = "/usr/users/iff_th2/duman/Bidisperse_Filaments/IMAGES/", \
+                        help="Folder to save the data, as in /usr/users/iff_th2/duman/Bidisperse_Filaments/IMAGES/")     
+    parser.add_argument("-ti","--init_time", nargs="?", const=100, type=int, \
+                        help="First frame of the video (in terms of frame number), you can also leave it empty")
+    parser.add_argument("-tf","--fin_time", nargs="?", const=1900, type=int, \
+                        help="Last frame of the video (in terms of frame number), you can also leave it empty")
+    parser.add_argument("-c","--colorid", type=str, \
+                        help ="Decide on the coloring -id or orient-")                                    
+    args = parser.parse_args()
+    
+    return args
+    
 ##############################################################################
     
 def gen_img_settings_quality(l):
@@ -142,9 +163,9 @@ def plot_frames(beads, sim, ti, tf, savebase, colorid):
 
     print 'defining colors'
     if colorid == "id":
-        sphere_rgbcolor = gen_colors_based_on_id(sim.beads, sim.npols, beads.pid)
+        sphere_rgbcolor = gen_colors_based_on_id(sim.nbeads, sim.npols, beads.pid)
     elif colorid == "orient":
-        sphere_rgbcolor = gen_colors_based_on_orient(sim.beads, sim.npols, beads.ori)        
+        sphere_rgbcolor = gen_colors_based_on_orient(sim.nbeads, sim.npols, beads.ori)        
 
     ### create povray settings
 
@@ -206,25 +227,13 @@ def plot_frames(beads, sim, ti, tf, savebase, colorid):
 
 def main():
 
-    ### get the data folder
+    ### get the command line arguments
     
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-fd", "--folder", \
-                        help="Folder containing data, as in /local/duman/SIMULATIONS/Bidisperse_Filaments/.../")
-    parser.add_argument("-sb", "--savebase", nargs="?", \
-                        const = "/usr/users/iff_th2/duman/Bidisperse_Filaments/IMAGES/", \
-                        help="Folder to save the data, as in /usr/users/iff_th2/duman/Bidisperse_Filaments/IMAGES/")     
-    parser.add_argument("-ti","--init_time", nargs="?", const=100, type=int, \
-                        help="First frame of the video (in terms of frame number), you can also leave it empty")
-    parser.add_argument("-tf","--fin_time", nargs="?", const=1900, type=int, \
-                        help="Last frame of the video (in terms of frame number), you can also leave it empty")
-    parser.add_argument("-c","--colorid", type=str, \
-                        help ="Decide on the coloring -id or orient-")                                    
-    args = parser.parse_args()
+    args = get_args()
     
     ### read the data and general information from the folder
     
-    beads, pols, sim = read_write.read_h5_file(args.folder, args.bending)
+    beads, pols, sim = read_write.read_h5_file(args.folder)
     print "folder = ", args.folder
     
     print "Calculating image positions of beads"
@@ -232,11 +241,11 @@ def main():
 
     if args.colorid == "orient":
         print "Calculating bond orientations"
-        beads.ori = misc_tools.calc_bond_orientations(beads.xu, \
+        beads.calc_bond_orientations(beads.xu, \
                         sim.nsteps, sim.nbeads, sim.npols, sim.nbpp)
     elif args.colorid == "id":
         print "Generating polymer identities of beads"
-        beads.pid = misc_tools.get_pol_ids(sim.nbeads, sim.nbpp)
+        beads.get_pol_ids(sim.nbeads, sim.nbpp)
         
     ### plot the data in the given time window
     
