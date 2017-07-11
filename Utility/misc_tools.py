@@ -65,7 +65,7 @@ def calc_velocities(x, d, dt):
 def get_img_pos(x, lx):
     """ get the image position in the central box 
     -- can be numpy array or single pos"""
-    
+
     return x-np.floor(x/lx)*lx
     
 ##############################################################################

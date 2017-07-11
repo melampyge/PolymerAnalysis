@@ -150,8 +150,8 @@ class Polymer:
         xi = l + random.random()*(lbox-2*l)         # random pos in box
         yi = l + random.random()*(lbox-2*l)
         ori = 2*np.pi*random.random()               # random orientation
-        cosv = math.cos(ori)
-        sinv = math.sin(ori)
+        cosv = math.cos(ori)*r0
+        sinv = math.sin(ori)*r0
         self.r = np.zeros((2, nbpp), dtype=np.float32)
         
         for j in xrange(nbpp):
