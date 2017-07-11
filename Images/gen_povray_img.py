@@ -158,8 +158,8 @@ def plot_frames(beads, sim, ti, tf, savebase, colorid):
     ### set general plot properties
 
     os.system("mkdir -p " + savebase)
-    savebase = misc_tools.gen_folder_path(savebase, sim.density, \
-                                          sim.kappa, sim.fp)
+    savebase = misc_tools.gen_contiguous_folder_path(savebase, sim.density, \
+                                                     sim.kappa, sim.fp)
     os.system("mkdir -p " + savebase)
     
     ### plot the frames

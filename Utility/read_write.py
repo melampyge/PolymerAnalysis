@@ -74,11 +74,16 @@ def read_sim_info(folder):
     density = fl['/params/density'][...]
     kappa = fl['/params/kappa'][...]
     fp = fl['/params/fp'][...]
-    bl = fl['/params/bl'][...]
-    sigma = fl['/params/sigma'][...]
-    dt = fl['/params/dt'][...]
-    lx = fl['/params/lx'][...]
-    ly = fl['/params/ly'][...]
+#    bl = fl['/params/bl'][...]
+#    sigma = fl['/params/sigma'][...]
+#    dt = fl['/params/dt'][...]
+#    lx = fl['/params/lx'][...]
+#    ly = fl['/params/ly'][...]
+    bl = 0.5
+    sigma = 1.0
+    dt = 50.0
+    lx = 221.6
+    ly = 221.6
     
     fl.close()
     

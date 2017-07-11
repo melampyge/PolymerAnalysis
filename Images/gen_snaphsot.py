@@ -10,6 +10,9 @@ Created on Mon Jul 10 16:46:21 2017
 
 ##############################################################################
 
+import sys
+sys.path.append('../Utility')
+
 import argparse
 import numpy as np
 import matplotlib as mpl
@@ -36,13 +39,36 @@ sns.set(style="white",context='paper',
 
 ##############################################################################
 
+def get_args():
+    """ get the command line arguments"""
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-fd", "--folder", \
+                        help="Folder containing data, as in /local/duman/SIMULATIONS/Bidisperse_Filaments/.../")
+    parser.add_argument("-sb", "--savebase", nargs="?", \
+                        const = "/usr/users/iff_th2/duman/Bidisperse_Filaments/IMAGES/", \
+                        help="Folder to save the data, as in /usr/users/iff_th2/duman/Bidisperse_Filaments/IMAGES/")     
+    parser.add_argument("-ti","--init_time", nargs="?", const=100, type=int, \
+                        help="First frame of the video (in terms of frame number), you can also leave it empty")
+    parser.add_argument("-tf","--fin_time", nargs="?", const=1900, type=int, \
+                        help="Last frame of the video (in terms of frame number), you can also leave it empty")
+    parser.add_argument("-c","--colorid", type=str, \
+                        help ="Decide on the coloring -id or orient-")   
+    parser.add_argument("-s","--savepdf", action="store_true", \
+                        help ="Decide whether to save as pdf or not")                                   
+    args = parser.parse_args()
+    
+    return args
+    
+##############################################################################
+
 def set_color_pallette(beads, sim, colorid):
     """ set the color pallette"""
     
     quant_steps = 2056
     if colorid == "id":
         minval = 0.
-        maxval = 2.*np.pi
+        maxval = sim.npols
         cmap_ax = plt.cm.get_cmap('jet', quant_steps)
         norm_ax = mpl.colors.Normalize(vmin=minval, vmax=maxval)      
         cidx = beads.pid
@@ -50,7 +76,7 @@ def set_color_pallette(beads, sim, colorid):
         minval = 0.
         maxval = 2.*np.pi
         cmap_ax = plt.cm.get_cmap('hsv', quant_steps)        
-        norm_ax = mpl.colors.Normalize(vmin=0, vmax=2.*np.pi)  
+        norm_ax = mpl.colors.Normalize(vmin=minval, vmax=maxval)  
         cidx = beads.ori
     
     return cidx, minval, maxval, cmap_ax, norm_ax
@@ -63,31 +89,48 @@ def set_plot_props(sim):
     full_box_downlim = -1.
     full_box_uplim = sim.lx+1.
     
-    return full_box_downlim, full_box_uplim
+    return full_box_downlim/sim.bond_length, full_box_uplim/sim.bond_length
     
 ##############################################################################
 
 def plot_frames(beads, sim, ti, tf, savebase, colorid, savepdf):
     """ plot the selected timeframes"""
     
-    ax0 = plotter.GeneralPlot()
-    cid, minval, maxval, cmap_ax0, norm_ax0 = set_color_pallette(beads, \
+    p = plotter.GeneralPlot()
+    ax0 = p.ax0
+    cidx, minval, maxval, cmap_ax0, norm_ax0 = set_color_pallette(beads, \
                                               sim, colorid)
     full_box_downlim, full_box_uplim = set_plot_props(sim)
     os.system("mkdir -p " + savebase)
-    savebase = misc_tools.gen_folder_path(savebase, sim.density, \
-                                          sim.kappa, sim.fp)
+    savebase = misc_tools.gen_contiguous_folder_path(savebase, sim.density, \
+                                                     sim.kappa, sim.fp)
     os.system("mkdir -p " + savebase)
     
     for step in np.arange(ti, tf):
+        
+        print "step / nsteps : ", str(step), " / ", str(tf)
+        time = sim.dt*step
+        
+        text = r"$t/\tau_{D}$ = " + "{0:.2f}".format(time/sim.tau_diff) + \
+            r", $t/\tau_{A}$ = " + "{0:.2f}".format(time/sim.tau_advec)
+            
+        p = plotter.GeneralPlot()
+        ax0 = p.ax0
+        
         line0 = ax0.scatter(beads.xi[step, 0, :]/sim.bond_length, \
                             beads.xi[step, 1, :]/sim.bond_length, \
-                            s=6.0, \
+                            s=1.0, \
                             c=cidx, cmap=cmap_ax0, \
-                            edgecolors='None', alpha=0.8, \
+                            edgecolors='None', alpha=0.7, \
                             vmin=minval, vmax=maxval, \
                             norm=norm_ax0, rasterized=True) 
-        ax0.set_axis('scaled')
+        
+        ### aspect ratio of the box
+        
+        ax0.axis('scaled')
+        
+        ### save file address
+        
         savepath = savebase + "frame-" + "{0:05d}".format(int(step))
         
         ### labels
@@ -105,6 +148,10 @@ def plot_frames(beads, sim, ti, tf, savebase, colorid, savepdf):
         #ax0.xaxis.set_ticks(full_box_ticks)
         #ax0.yaxis.set_ticks(full_box_ticks)
         ax0.tick_params(axis='both', which='major', labelsize=30)    
+        
+        plt.figtext(p.xbeg+0.17*p.length, \
+                    p.ybeg+1.01*p.length, \
+                    text, fontsize=30)
                 
 #        if colorid == 'orient':
 #        
@@ -127,7 +174,8 @@ def plot_frames(beads, sim, ti, tf, savebase, colorid, savepdf):
         else:            
             plt.savefig(savepath+".png", dpi=300, bbox_inches='tight', pad_inches=0.08)
             
-        ax0.fig.clf()
+        p.fig.clf()
+        plt.close()
         
     return
 
@@ -135,27 +183,13 @@ def plot_frames(beads, sim, ti, tf, savebase, colorid, savepdf):
     
 def main():
 
-    ### get the data folder
+    ### get the command line arguments
     
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-fd", "--folder", \
-                        help="Folder containing data, as in /local/duman/SIMULATIONS/Bidisperse_Filaments/.../")
-    parser.add_argument("-sb", "--savebase", nargs="?", \
-                        const = "/usr/users/iff_th2/duman/Bidisperse_Filaments/IMAGES/", \
-                        help="Folder to save the data, as in /usr/users/iff_th2/duman/Bidisperse_Filaments/IMAGES/")     
-    parser.add_argument("-ti","--init_time", nargs="?", const=100, type=int, \
-                        help="First frame of the video (in terms of frame number), you can also leave it empty")
-    parser.add_argument("-tf","--fin_time", nargs="?", const=1900, type=int, \
-                        help="Last frame of the video (in terms of frame number), you can also leave it empty")
-    parser.add_argument("-c","--colorid", type=str, \
-                        help ="Decide on the coloring -id or orient-")   
-    parser.add_argument("-s","--savepdf", action="store_true", \
-                        help ="Decide on the coloring -id or orient-")                                   
-    args = parser.parse_args()
+    args = get_args()
     
     ### read the data and general information from the folder
     
-    beads, pols, sim = read_write.read_h5_file(args.folder, args.bending)
+    beads, pols, sim = read_write.read_h5_file(args.folder)
     print "folder = ", args.folder
     
     print "Calculating image positions of beads"
@@ -163,11 +197,11 @@ def main():
 
     if args.colorid == "orient":
         print "Calculating bond orientations"
-        beads.ori = misc_tools.calc_bond_orientations(beads.xu, \
+        beads.calc_bond_orientations(beads.xu, \
                         sim.nsteps, sim.nbeads, sim.npols, sim.nbpp)
     elif args.colorid == "id":
         print "Generating polymer identities of beads"
-        beads.pid = misc_tools.get_pol_ids(sim.nbeads, sim.nbpp)
+        beads.get_pol_ids(sim.nbeads, sim.nbpp)
         
     ### plot the data in the given time window
     

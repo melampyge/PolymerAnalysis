@@ -15,6 +15,37 @@ class Beads:
         self.xu = xu
         
         return
+
+        
+    def get_pol_ids(self, nbeads, nbpp):
+        """ get the polymer identities of beads"""
+        
+        self.pid = np.zeros((nbeads), dtype=np.int32)
+        splitter = np.cumsum(nbpp)
+        begin_idx = 0
+        for j, end_idx in enumerate(splitter):
+            self.pid[int(begin_idx) : int(end_idx)] = j
+            begin_idx = end_idx
+        
+        return   
+
+        
+    def calc_bond_orientations(self, x, nsteps, nbeads, npols, nbpp):
+        """ calculate the bond orientations"""
+        
+        self.ori = np.zeros((nsteps, nbeads), dtype=np.float32)
+        for step in xrange(nsteps):
+            k = 0
+            for n in xrange(npols):
+                for j in xrange(nbpp[n]-1):
+                    dr = x[step,:,k+1] - x[step,:,k]
+                    self.ori[step][k] = np.atan2(dr[1], dr[0])
+                    k += 1
+                dr = x[step,:,k+1] - x[step,:,k]
+                self.ori[step][k] = np.atan2(dr[1], dr[0])
+                k += 1                
+        
+        return 
         
 ##############################################################################
 
@@ -26,7 +57,7 @@ class Polymers:
         self.xu = xu
 
         return
-        
+          
 ##############################################################################
 
 class Simulation:
@@ -71,7 +102,7 @@ class SimulationBidispersePolymers(Simulation):
         self.length = self.get_length_of_polymer(self.nbpp[0])
         self.pe = self.get_pe_of_polymer(self.nbpp[0])
         self.xil = self.get_xil_of_polymer(self.nbpp[0])
-        self.tau_diff = self.length**3 * self.gamma_0 * self.nbpp / self.length \
+        self.tau_diff = self.length**3 * self.gamma_0 * self.nbpp[0] / self.length \
             / self.kT / 4.
         self.tau_advec = self.length * self.gamma_0 / self.fp
         self.vc = self.fp / self.gamma_0

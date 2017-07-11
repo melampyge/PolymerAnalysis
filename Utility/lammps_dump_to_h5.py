@@ -265,7 +265,7 @@ def write_h5_file(xu, comu, sim):
     param.create_dataset('density', data=sim.density)
     param.create_dataset('kappa', data=sim.kappa)
     param.create_dataset('fp', data=sim.fp)
-    param.create_dataset('bl', data=sim.bl)
+    param.create_dataset('bl', data=sim.bond_length)
     param.create_dataset('sigma', data=sim.sigma)
     param.create_dataset('lx', data=sim.lx)
     param.create_dataset('ly', data=sim.ly)
