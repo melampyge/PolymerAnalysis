@@ -21,7 +21,8 @@ import argparse
 ##############################################################################
 
 def order_files(folder):
-    """ order the filenames for ffmpeg to work"""
+    """ order the filenames for ffmpeg to work,
+    ordering in the sense that frame numbers should go from 0 onwards"""
 
     ### change/order the filenames for ffmpeg to work
     
@@ -30,24 +31,32 @@ def order_files(folder):
     
     if 1 == final_vid:
     	
+      ### go through each file inside the folder
+      # get the numeric part inside the filename
+      # a filename being something like:
+      # frame-00010.png or frame-000100.png
+      # make a list of numeric part of the file and filename for each file
+      # sort the list according to the value in the numeric part
+      
     	for ff in os.listdir(folder):	
     	
-    		if ".png" == ff[-4:] and "frame" == ff[0:5]:
-    			if "." == ff[11]:
-    				num = int(ff[6:11])
-    			elif "." == ff[12]:
-    				num = int(ff[6:12])
-    			elif "." == ff[13]:
-    				num = int(ff[6:13])
-    			elif "." == ff[14]:
-    				num = int(ff[6:14])
-    			enum.append([num,ff])
+         if ".png" == ff[-4:] and "frame" == ff[0:5]:
+            if "." == ff[11]:
+                num = int(ff[6:11])
+            elif "." == ff[12]:
+                num = int(ff[6:12])
+            elif "." == ff[13]:
+                num = int(ff[6:13])
+            elif "." == ff[14]:
+                num = int(ff[6:14])
+            enum.append([num, ff])
     
-    		enum = sorted(enum,key=lambda x:x[0])
+         enum = sorted(enum, key=lambda x:x[0])
     
-    	for i in range(0,len(enum)):
-    		print enum[i][1]
-    		os.rename(enum[i][1],"frame-"+ "%05d" % i +".png")
+      ### rename all the files starting from 0 onwards
+      
+    	for i in range(0, len(enum)):
+    		os.rename(folder+enum[i][1], folder+"frame-"+ "%05d" % i +".png")
       
     return
       
