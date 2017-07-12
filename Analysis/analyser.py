@@ -11,40 +11,13 @@ Created on Tue Jul 11 13:49:42 2017
 ##############################################################################
 
 import sys
-sys.path.append('Utility')
-sys.path.append('Analysis')
+sys.path.append('../Utility')
 
-import argparse
-import numpy as np
 import read_write
 
 ##############################################################################  
-
-def get_args():
-    """ get the command line arguments"""
-    
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-fd", "--datafolder", \
-                        help="Folder containing data, as in /local/duman/SIMULATIONS/Bidisperse_Filaments/.../")
-    parser.add_argument("-sb", "--savebase", nargs="?", \
-                        const = "/usr/users/iff_th2/duman/Bidisperse_Filaments/DATA/", \
-                        help="Folder to save the data, as in /usr/users/iff_th2/duman/Bidisperse_Filaments/DATA/") 
-    parser.add_argument("-an", "--analysisname", \
-                        help="Specific folder for saving, as in MSD")    
-    parser.add_argument("-c", "--choice", nargs="?", \
-                        const = "simulation", \
-                        help="Read choice --simulation, beads, polymers, or all--")  
-    parser.add_argument("-af", "--analysisfunction", \
-                        help="Name of the analysis function, as in calculate_MSD")  
-    parser.add_argument("-wf", "--writefunction", \
-                        help="Name of the write function, as in write_2d_data")        
-    args = parser.parse_args()
-    
-    return args
-
-##############################################################################  
      
-class Analyse:
+class Analyser:
     
     def __init__(self, fd, sb, an):
         
@@ -97,43 +70,12 @@ class Analyse:
         return
         
     
-    def write_results(self, func):
+    def write_results(self, write_func):
         """ write the analysis results"""
         
-        read_write.func(self.results, self.savebase, \
-                        self.analysisname, self.simdata)
+        read_write.write_func(self.results, self.savebase, \
+                              self.analysisname, self.simdata)
         
         return
         
-##############################################################################
-
-def main():
-    
-    ### get the command line arguments
-    
-    args = get_args()
-    
-    ### create an instance of specific data analysis 
-    
-    analyser = Analyse(args.datafolder, args.savebase, args.analysisname)
-    
-    ### read simulation data
-    
-    analyser.read_data(args.choice)
-    
-    ### perform the selected analysis
-    
-    analyser.perform_analysis(args.analysis_function)
-    
-    ### write the analysis results
-    
-    analyser.write_results(args.writefunction)
-    
-    return
-   
-##############################################################################
-    
-if __name__ == "__main__":
-    main()
-
 ##############################################################################
