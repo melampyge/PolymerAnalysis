@@ -20,7 +20,7 @@ import misc_tools
 
 ##############################################################################
 
-def read_contextual_info():
+def read_contextual_info_for_bidisperse_pols():
     """ read the contextual information provided by the user'
     specific for bidisperse polymers"""
     
@@ -110,7 +110,80 @@ def read_contextual_info():
                                      args.lx, args.ly, args.kappa, args.fp)
     
     return sim, args.last_tstep
+
+##############################################################################    
+
+def read_contextual_info_for_monodisperse_pols():
+    """ read the contextual information provided by the user'
+    specific for monodisperse polymers"""
+    
+    ### get the data folder and the last timestep info
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-fd", "--folder", type=str, \
+                        help="Folder containing data, as in /homea/ias2/duman/HighDens_Filaments/")
+    parser.add_argument("-t", "--last_tstep", nargs="?", const="100000000", \
+                            type=int, help="The last time step that is being searched for")
+    parser.add_argument("-d", "--density", type=float, \
+                        help="Packing fraction of the system")  
+    parser.add_argument("-k", "--kappa", type=float, \
+                        help="Bending rigidity")
+    parser.add_argument("-f", "--fp", type=float, \
+                        help="Propulsion force")
+    parser.add_argument("-dt", "--timestep", type=float, \
+                        help="Timestep of the simulation")
+    parser.add_argument("-ns", "--nsamp", type=int, \
+                        help="Sampling rate of data")
+    parser.add_argument("-b", "--bl", type=float, \
+                        help="Bond length of the simulation")    
+    parser.add_argument("-s", "--sigma", type=float, \
+                        help="Lennard Jones length")     
+    parser.add_argument("-l", "--length", \
+                        type=float, help="Length of the polymers")
+    parser.add_argument("-np", "--npols", \
+                        type=int, help="Number of polymers in the simulation") 
+    args = parser.parse_args()
+    
+    ### generate folder path
+    
+    folder = misc_tools.gen_folder_path(args.folder, args.density, args.kappa, args.fp)
+    fl = folder + 'out1.dump'
+    assert os.path.exists(fl), "\nOUT1.DUMP DOES NOT EXIST FOR: " + folder 
+
+    print "Creating the compressed data format for the following file : " + fl
+
+    ### determine number of beads per polymer
+    
+    args.nbpp = int(args.length/args.bl+1)
+    
+    ### determine number of beads per polymer type in total
+    
+    args.nbeads = args.npols*args.nbpp
         
+    ### determine box information 
+    
+    area_of_pol = args.length*args.sigma*args.npols
+    area_box = area_of_pol/args.density
+    args.lx = np.sqrt(area_box)
+    args.ly = np.sqrt(area_box)
+    
+    ### total number of steps
+    
+    args.nsteps = args.last_tstep/args.nsamp
+    args.nsteps += 1
+    
+    ### restructure the data 
+    
+    nbpp = np.ones((args.npols), dtype=np.int32) * args.nbpp
+    
+    sim = data_structures.SimulationBidispersePolymers(folder, \
+                                     args.timestep*args.nsamp, args.density, \
+                                     args.nsteps, args.nbeads, \
+                                     args.npols, nbpp, args.bl, args.sigma, \
+                                     args.lx, args.ly, args.kappa, args.fp)
+    
+    return sim, args.last_tstep   
+    
 ##############################################################################
     
 def get_number_of_snaps(f, nbeads):
@@ -306,7 +379,7 @@ def main():
 
     ### read information given by user about the simulation
     
-    sim, last_tstep = read_contextual_info()
+    sim, last_tstep = read_contextual_info_for_monodisperse_pols()
     
     ### read the bead data
     

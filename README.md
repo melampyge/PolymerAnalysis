@@ -1,6 +1,6 @@
-# DATA ANALYSIS TOOLKIT FOR BIDISPERSE POLYMERS
+# DATA ANALYSIS TOOLKIT FOR POLYMERS
 
-A set of data analysis tools to analyse the collective motion of filaments/polymers with bimodal length distributions.
+A set of data analysis tools to analyse the collective motion of polymers with varying lengths.
 
 Over the course of my PhD, I have written a ton of such analysis tools. This is an attempt to combine all of them in a package aimed at the general analysis of polymers with a *polydisperse* (i.e. changing number of beads) length distribution. The idea is to reduce friction as much as possible when trying first time analysis on a system.  
 

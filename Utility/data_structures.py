@@ -129,3 +129,4 @@ class SimulationBidispersePolymers(Simulation):
         return self.kappa/self.kT/l
     
 ##############################################################################
+     
