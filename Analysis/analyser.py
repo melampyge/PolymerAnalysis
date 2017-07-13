@@ -13,8 +13,6 @@ Created on Tue Jul 11 13:49:42 2017
 import sys
 sys.path.append('../Utility')
 
-import read_write
-
 ##############################################################################  
      
 class Analyser:
@@ -73,7 +71,7 @@ class Analyser:
     def write_results(self, write_func):
         """ write the analysis results"""
         
-        read_write.write_func(self.results, self.savebase, \
+        write_func(self.results, self.savebase, \
                               self.analysisname, self.simdata)
         
         return

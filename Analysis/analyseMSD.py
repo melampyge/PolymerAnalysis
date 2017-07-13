@@ -72,8 +72,8 @@ class AnalyseMSD(analyser.Analyser):
         analyser.Analyser.__init__(self, args.datafolder, args.savebase, \
                                    args.analysisname, args.choice)
         self.read_data(self.choice)
-        self.perform_analysis(self.calculate_MSD)
-        self.write_results(self.write_2d_analysis_data)
+        self.perform_analysis(calculate_MSD)
+        self.write_results(read_write.write_2d_analysis_data)
         
         return
     
