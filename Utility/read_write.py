@@ -64,21 +64,21 @@ def read_sim_info(folder):
     
     ### general information about the simulation
     
-    nsteps = fl['/sim/nsteps'][...]
-    nbeads = fl['/sim/nbeads'][...]
-    npols = fl['/sim/npols'][...]
-    nbpp = np.array(fl['/sim/nbpp'], dtype=np.float32)
+    nsteps = int(fl['/sim/nsteps'][...])
+    nbeads = int(fl['/sim/nbeads'][...])
+    npols = int(fl['/sim/npols'][...])
+    nbpp = np.array(fl['/sim/nbpp'], dtype=np.int32)
     
     ### simulation parameters
     
-    density = fl['/params/density'][...]
-    kappa = fl['/params/kappa'][...]
-    fp = fl['/params/fp'][...]
-#    bl = fl['/params/bl'][...]
-#    sigma = fl['/params/sigma'][...]
-#    dt = fl['/params/dt'][...]
-#    lx = fl['/params/lx'][...]
-#    ly = fl['/params/ly'][...]
+    density = float(fl['/params/density'][...])
+    kappa = float(fl['/params/kappa'][...])
+    fp = float(fl['/params/fp'][...])
+#    bl = float(fl['/params/bl'][...])
+#    sigma = float(fl['/params/sigma'][...])
+#    dt = float(fl['/params/dt'][...])
+#    lx = float(fl['/params/lx'][...])
+#    ly = float(fl['/params/ly'][...])
     bl = 0.5
     sigma = 1.0
     dt = 50.0
@@ -109,3 +109,40 @@ def read_h5_file(folder):
     return beads, pols, sim
     
 ##############################################################################    
+
+def write_2d_analysis_data(results, savebase, analysisname, sim):
+    """ write 2d analysis data to the corresponding file"""
+    
+    ### create the path
+    
+    base = savebase + analysisname + '/'
+    os.system("mkdir -p " + base)
+    base += analysisname + '_'
+    folderpath = misc_tools.gen_folder_path(base, '_', sim.phase_params)
+    fpath = folderpath + '.txt'
+    
+    ### write the data
+    
+    fl = open(fpath, 'w')
+    x, y = results
+    N = len(x)
+    for j in range(N):
+        fl.write(str(x[j]) + '\t\t' + str(y[j]) + '\n')
+    
+    fl.close()
+
+    return
+
+##############################################################################
+    
+def read_2d_analysis_data(f):
+    """ read 2d analysis data"""
+    
+    data = np.transpose(np.loadtxt(f, dtype=np.float64))
+    x = data[0]
+    y = data[1]
+
+    return x, y   
+    
+##############################################################################
+    

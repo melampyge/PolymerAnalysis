@@ -4,6 +4,7 @@
 ##############################################################################
 
 import numpy as np
+from collections import OrderedDict
 
 ##############################################################################
         
@@ -107,6 +108,10 @@ class SimulationBidispersePolymers(Simulation):
         self.tau_advec = self.length * self.gamma_0 / self.fp
         self.vc = self.fp / self.gamma_0
         
+        ### generate key parameters that map the phase space
+        
+        self.gen_key_params()
+        
         return
     
     def get_length_of_polymer(self, nb):
@@ -127,6 +132,15 @@ class SimulationBidispersePolymers(Simulation):
         l = self.get_length_of_polymer(nb)
 
         return self.kappa/self.kT/l
+        
+    def gen_key_params(self):
+        """ generate key parameters that help the mapping of the phase space"""
+        
+        key_params = ([('density', self.density), \
+                       ('kappa', self.kappa), ('fp', self.fp)])
+        self.phase_params = key_params
+        
+        return
     
 ##############################################################################
      

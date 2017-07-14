@@ -26,7 +26,7 @@ import matplotlib.colors as mplcolors
 
 import read_write
 import misc_tools
-import data_structures
+import data_separator
 import plotter
 
 import seaborn as sns
@@ -102,8 +102,7 @@ def plot_frames(beads, sim, ti, tf, savebase, colorid, savepdf):
                                               sim, colorid)
     full_box_downlim, full_box_uplim = set_plot_props(sim)
     os.system("mkdir -p " + savebase)
-    savebase = misc_tools.gen_contiguous_folder_path(savebase, sim.density, \
-                                                     sim.kappa, sim.fp)
+    savebase = data_separator.gen_folder_path(savebase, '_', sim.phaseparams)
     os.system("mkdir -p " + savebase)
     
     for step in np.arange(ti, tf):

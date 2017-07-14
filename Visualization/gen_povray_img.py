@@ -29,10 +29,11 @@ mpl.use('Agg', warn=False)
 import matplotlib.pyplot as plt
 import read_write
 import misc_tools
-import data_structures
 import vapory
 import matplotlib.cm as cm
 import matplotlib.colors as mplcolors 
+
+import data_separator
 
 ##############################################################################
 
@@ -179,8 +180,7 @@ def plot_frames(beads, sim, ti, tf, savebase, colorid):
     ### set general plot properties
 
     os.system("mkdir -p " + savebase)
-    savebase = misc_tools.gen_contiguous_folder_path(savebase, sim.density, \
-                                                     sim.kappa, sim.fp)
+    savebase = data_separator.gen_folder_path(savebase, '_', sim.phaseparams)
     os.system("mkdir -p " + savebase)
     
     ### plot the frames

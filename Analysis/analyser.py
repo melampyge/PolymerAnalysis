@@ -13,6 +13,8 @@ Created on Tue Jul 11 13:49:42 2017
 import sys
 sys.path.append('../Utility')
 
+import read_write
+
 ##############################################################################  
      
 class Analyser:

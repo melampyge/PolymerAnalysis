@@ -36,22 +36,6 @@ def coords_per_pols(x, y, nbpp):
     y_per_pol = np.split(y, splitter, axis=1)
     
     return x_per_pol, y_per_pol
-
-##############################################################################
-
-def gen_folder_path(base, d, k, f):
-    """ generate folder path address from the parameters"""
-    
-    return base + 'density_' + str(d) + \
-        '/kappa_' + str(k) + '/fp_' + str(f) + '/'
-
-##############################################################################
-
-def gen_contiguous_folder_path(base, d, k, f):
-    """ generate contiguous folder path address from the parameters"""
-    
-    return base + 'density_' + str(d) + \
-        '_kappa_' + str(k) + '_fp_' + str(f) + '/'
         
 ##############################################################################
 
@@ -69,4 +53,4 @@ def get_img_pos(x, lx):
     return x-np.floor(x/lx)*lx
     
 ##############################################################################
-
+    
