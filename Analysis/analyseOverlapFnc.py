@@ -69,7 +69,7 @@ class AnalyseOverlapFnc(analyser.Analyser):
         args = self.get_args()
         analyser.Analyser.__init__(self, args.datafolder, args.savebase, \
                                    args.analysisname, args.choice)
-        self.read_data(self.choice)
+        self.read_data(args.beadsorpols, args.simtype)
         self.perform_analysis(calculate_overlap_fnc)
         self.write_results(read_write.write_2d_analysis_data)
         
@@ -87,9 +87,12 @@ class AnalyseOverlapFnc(analyser.Analyser):
                             help="Folder to save the data, as in /usr/users/iff_th2/duman/Bidisperse_Filaments/DATA/") 
         parser.add_argument("-an", "--analysisname", \
                             help="Specific folder for saving, as in Overlap_fnc")    
-        parser.add_argument("-c", "--choice", nargs="?", \
+        parser.add_argument("-bop", "--beadsorpols", nargs="?", \
+                            const = "beads", \
+                            help="Read choice --beads or polymers--")
+        parser.add_argument("-st", "--simtype", nargs="?", \
                             const = "simulation", \
-                            help="Read choice --simulation, beads, polymers, or all--")        
+                            help="Choose simulation type --filaments or cells--")      
         args = parser.parse_args()
         
         return args     

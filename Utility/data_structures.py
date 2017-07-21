@@ -5,18 +5,35 @@
 
 import numpy as np
 from collections import OrderedDict
+import os 
+import h5py
 
 ##############################################################################
         
 class Beads:
     """ container for bead information"""
     
-    def __init__(self, xu):
+    def __init__(self, folder):
         
-        self.xu = xu
+        self.read_data(folder)
         
         return
 
+    def read_data(self, folder):
+        """ read bead data from hdf5 file"""
+        
+        ### file path
+        
+        fpath = folder + 'out.h5'
+        assert os.path.exists(fpath), "The out.h5 file does NOT exist for "\
+             + fpath
+        fl = h5py.File(fpath, 'r')
+        
+        ### bead information
+        
+        self.xu = np.array(fl['/pols/comu'], dtype=np.float32)
+            
+        return 
         
     def get_pol_ids(self, nbeads, nbpp):
         """ get the polymer identities of beads"""
@@ -53,11 +70,27 @@ class Beads:
 class Polymers:
     """ container for polymer information"""
     
-    def __init__(self, xu):
+    def __init__(self, folder):
         
-        self.xu = xu
+        self.read_data(folder)
 
         return
+        
+    def read_data(self, folder):
+        """ read polymer data from hdf5 file"""
+        
+        ### file path
+        
+        fpath = folder + 'out.h5'
+        assert os.path.exists(fpath), "The out.h5 file does NOT exist for "\
+             + fpath
+        fl = h5py.File(fpath, 'r')
+        
+        ### polymer information
+        
+        self.xu = np.array(fl['/pols/comu'], dtype=np.float32)
+            
+        return       
           
 ##############################################################################
 
@@ -88,13 +121,13 @@ class Simulation:
 class SimulationBidispersePolymers(Simulation):
     """ container for general simulation information for bidisperse polymers"""
     
-    def __init__(self, datafolder, dt, density, nsteps, nbeads, \
-                 npols, nbpp, bl, sigma, lx, ly, kappa, fp):
+    def __init__(self, datafolder):
         
-        Simulation.__init__(self, datafolder, dt, density, nsteps, nbeads, \
-                 npols, nbpp, bl, sigma, lx, ly)
-        self.kappa = kappa
-        self.fp = fp
+        self.read_sim_info(datafolder)
+        Simulation.__init__(self, datafolder, self.dt, \
+                            self.density, self.nsteps, self.nbeads, \
+                            self.npols, self.nbpp, self.bl, \
+                            self.sigma, self.lx, self.ly)
         
         ### define general physical parameters
         # NOTE THAT : 
@@ -141,6 +174,43 @@ class SimulationBidispersePolymers(Simulation):
         self.phase_params = key_params
         
         return
-    
+ 
+    def read_sim_info(self, folder):
+        """ read simulation info from hdf5 file,
+        specific for bidisperse simulations"""
+        
+        ### file path
+        
+        fpath = folder + 'out.h5'
+        assert os.path.exists(fpath), "The out.h5 file does NOT exist for " + fpath
+        fl = h5py.File(fpath, 'r')    
+        
+        ### general information about the simulation
+        
+        self.nsteps = int(fl['/sim/nsteps'][...])
+        self.nbeads = int(fl['/sim/nbeads'][...])
+        self.npols = int(fl['/sim/npols'][...])
+        self.nbpp = np.array(fl['/sim/nbpp'], dtype=np.int32)
+        
+        ### simulation parameters
+        
+        self.density = float(fl['/params/density'][...])
+        self.kappa = float(fl['/params/kappa'][...])
+        self.fp = float(fl['/params/fp'][...])
+    #    self.bl = float(fl['/params/bl'][...])
+    #    self.sigma = float(fl['/params/sigma'][...])
+    #    self.dt = float(fl['/params/dt'][...])
+    #    self.lx = float(fl['/params/lx'][...])
+    #    self.ly = float(fl['/params/ly'][...])
+        self.bl = 0.5
+        self.sigma = 1.0
+        self.dt = 50.0
+        self.lx = 221.6
+        self.ly = 221.6
+        
+        fl.close()
+        
+        return
+        
 ##############################################################################
      

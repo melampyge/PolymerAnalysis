@@ -14,6 +14,7 @@ import sys
 sys.path.append('../Utility')
 
 import read_write
+import data_structures
 
 ##############################################################################  
      
@@ -30,25 +31,26 @@ class Analyser:
         return
         
         
-    def read_data(self, choice):
+    def read_data(self, bop, sim_type):
         """ read simulation, polymers, and/or beads data"""
         
-        self.read_choice = choice
+        self.read_choice = bop
+        self.sim_type = sim_type
         
         if self.read_choice == "beads":
-            self.beaddata = read_write.read_bead_data(self.datafolder)
-            self.simdata = read_write.read_sim_info(self.datafolder)
+            self.beaddata = data_structures.Beads(self.datafolder)
         elif self.read_choice == "polymers":
-            self.poldata = read_write.read_polymer_data(self.datafolder)
-            self.simdata = read_write.read_sim_info(self.datafolder)            
-        elif self.read_choice == "sim":
-            self.simdata = read_write.read_sim_info(self.datafolder)
-        elif self.read_choice == "all":
-            self.beaddata, self.poldata, self.simdata = \
-                read_write.read_h5_file(self.datafolder)
+            self.beaddata = data_structures.Polymers(self.datafolder)
         else:
-            raise "The read choices should be either polymers, beads, simulation or all"
+            raise "The beadsorpols should be either polymers, or beads"
     
+        if self.sim_type == "filaments":
+            self.simdata = data_structures.SimulationBidispersePolymers(self.datafolder) 
+        elif self.sim_type == "cells":
+            self.simdata = data_structures.SimulationCells(self.datafolder)     
+        else:
+            raise "The simulation type should be either filaments, or cells"
+            
         return 
         
         
@@ -59,13 +61,8 @@ class Analyser:
             self.results = analysis_func(self.beaddata, self.simdata)
         elif self.read_choice == "polymers":
             self.results = analysis_func(self.poldata, self.simdata)
-        elif self.read_choice == "sim":
-            self.results = analysis_func(self.simdata)
-        elif self.read_choice == "all":
-            self.results = analysis_func(self.beaddata, self.poldata, \
-                                         self.simdata)
         else:
-            raise "The read choices should be either polymers, beads, simulation or all"    
+            self.results = analysis_func(self.simdata)   
             
         return
         
