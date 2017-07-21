@@ -13,81 +13,7 @@ using namespace std;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int read_integer_data (hid_t file, string path_in_file, int *buffer) {
-  /* wrapper to read integer data from hdf5 file --note that buffer needs to be an array of size 1 for single entries-- */
-  
-  const char *fl = path_in_file.c_str();	
-  hid_t dataset = H5Dopen(file, fl, H5P_DEFAULT);
-  herr_t status = H5Dread(dataset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, buffer);
-
-  H5Dclose(dataset);
-
-  return buffer[0];
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-double read_double_data (hid_t file, string path_in_file, double *buffer) {
-  /* wrapper to read double data from hdf5 file --note that buffer needs to be an array of size 1 for single entries-- */
-   
-  const char *fl = path_in_file.c_str(); 
-  hid_t dataset = H5Dopen(file, fl, H5P_DEFAULT);
-  herr_t status = H5Dread(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, buffer);
-
-  H5Dclose(dataset);
-
-  return buffer[0];
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void read_integer_array (string filename, string path_in_file, int *buffer) {
-  /* wrapper to read integer array data from hdf5 file --note that buffer needs to be the array size-- */
-
-  const char *fl1 = filename.c_str();
-  const char *fl2 = path_in_file.c_str();
-
-  // open the file pointer
-  
-  hid_t file = H5Fopen(fl1, H5F_ACC_RDONLY, H5P_DEFAULT);
-  
-  // read the array
-  
-  hid_t dataset = H5Dopen(file, fl2, H5P_DEFAULT);
-  herr_t status = H5Dread(dataset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, buffer);
-
-  H5Dclose(dataset);
-  H5Fclose(file);
-
-  return;
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void read_double_array (string filename, string path_in_file, double *buffer) {
-  /* wrapper to read double array data from hdf5 file --note that buffer needs to be the array size-- */
-
-  const char *fl1 = filename.c_str();
-  const char *fl2 = path_in_file.c_str();
-
-  // open the file pointer
-  
-  hid_t file = H5Fopen(fl1, H5F_ACC_RDONLY, H5P_DEFAULT);
-  
-  // read the array
-  
-  hid_t dataset = H5Dopen(file, fl2, H5P_DEFAULT);
-  herr_t status = H5Dread(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, buffer);
-
-  H5Dclose(dataset);
-  H5Fclose(file);
-
-  return;
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void read_single_pos_data(int step, hid_t dataset, hid_t dataspace, double **x, double **y, int natoms) {
+void read_single_pos_data (int step, hid_t dataset, hid_t dataspace, double **x, double **y, int natoms) {
   /* read the position data at a single timestep */
  
   // read the data in the x direction
@@ -142,7 +68,7 @@ void read_single_pos_data(int step, hid_t dataset, hid_t dataspace, double **x, 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void read_all_pos_data(string filename, double **x, double **y, int nsteps, int natoms, string datapath) {
+void read_all_pos_data (string filename, double **x, double **y, int nsteps, int natoms, string datapath) {
   /* read position data in hdf5 format all at once */
  
   const char *fl1 = filename.c_str();
@@ -180,90 +106,7 @@ void read_all_pos_data(string filename, double **x, double **y, int nsteps, int 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void read_single_pol_data(int step, hid_t dataset, hid_t dataspace, double **pol, int natoms) {
-  /* read the polarity data at a single timestep */
- 
-  // read the data in the x direction
-  
-  // define the hyperslab in the dataset
-  /* we are gonna reduce the data in the dataset from 3 dimensions to two 2 dimensional arrays */
-    
-  hsize_t offset[2];
-  offset[0] = step; offset[1] = 0; 
-  
-  hsize_t count[2];
-  count[0] = 1; count[1] = natoms;
-  
-  // select a 1D hyperslab from the original 2D dataset
-  
-  herr_t status = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, offset, NULL, count, NULL);
-
-  // define memory dataspace
-  
-  hsize_t dimsm[2];	// dimensions and sizes in each dimension
-  dimsm[0] = 1; dimsm[1] = natoms; 
-  hid_t memspace = H5Screate_simple(2, dimsm, NULL);
-  
-  // define memory hyperslab
-  
-  hsize_t offset_out[2];
-  offset_out[0] = 0; offset_out[1] = 0; 
-  
-  hsize_t count_out[2];
-  count_out[0] = 1; count_out[1] = natoms; 
-  
-  status = H5Sselect_hyperslab(memspace, H5S_SELECT_SET, offset_out, NULL, count_out, NULL);
-  
-  // read data from hyperslab in the file into the hyperslab in memory 
-  
-  status = H5Dread(dataset, H5T_NATIVE_DOUBLE, memspace, dataspace, H5P_DEFAULT, pol[step]); 
-      
-  H5Sclose(memspace);
-  
-  return;
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void read_all_pol_data(string filename, double **pol, int nsteps, int natoms, string datapath) {
-  /* read polarity data in hdf5 format all at once */
- 
-  const char *fl1 = filename.c_str();
-  const char *fl2 = datapath.c_str();
-
-  // open the file pointer
-  
-  hid_t file = H5Fopen(fl1, H5F_ACC_RDONLY, H5P_DEFAULT);
-
-  // get the dataset in the file
-  /* DATASET (H5D) is the raw data (either singular or in arrays) */
-  
-  hid_t dataset = H5Dopen(file, fl2, H5P_DEFAULT);
-  
-  // get dataspace of the selected dataset
-  /* DATASPACE (H5S) describes the number of dimensions and the size of the dataset in those dimension */
-  
-  hid_t dataspace = H5Dget_space(dataset);
- 
-  /* READ THE DATA
-  load the data into the memory step by step 
-  register the data at each step to the array
-  */
-  
-  for (int step = 0; step < nsteps; step++) {
-    read_single_pol_data(step, dataset, dataspace, pol, natoms);
-  }
-
-  H5Sclose(dataspace);
-  H5Dclose(dataset);
-  H5Fclose(file);
-  
-  return;
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void write_single_analysis_data(double data, string outpath) {
+void write_single_analysis_data (double data, string outpath) {
   /* write analysis data with single parameter to the outfile */
  
   const char *outfl = outpath.c_str();
@@ -276,7 +119,7 @@ void write_single_analysis_data(double data, string outpath) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void write_1d_analysis_data(double *x, int ndata, string outpath) {
+void write_1d_analysis_data (double *x, int ndata, string outpath) {
   /* write the 1d analysis data to the outfile */
   
   const char *outfl = outpath.c_str();
@@ -291,7 +134,7 @@ void write_1d_analysis_data(double *x, int ndata, string outpath) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void write_1d_vec_analysis_data(const vector<double> &x, int ndata, string outpath) {
+void write_1d_vec_analysis_data (const vector<double> &x, int ndata, string outpath) {
   /* write the 1d vector analysis data to the outfile */
   
   const char *outfl = outpath.c_str();
@@ -306,7 +149,7 @@ void write_1d_vec_analysis_data(const vector<double> &x, int ndata, string outpa
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void write_2d_analysis_data(double *x, double *y, double ndata, string outpath) {
+void write_2d_analysis_data (double *x, double *y, double ndata, string outpath) {
   /* write the 2d analysis data to the outfile */
   
   const char *outfl = outpath.c_str();
@@ -321,7 +164,7 @@ void write_2d_analysis_data(double *x, double *y, double ndata, string outpath) 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void write_multid_analysis_data(const vector<double> &w, 
+void write_multid_analysis_data (const vector<double> &w, 
 			    const vector<double> &vx, const vector<double> &vy, 
 			    const int ndata, const int nsteps, string outpath) {
   /* write multid analysis data to the outfile */

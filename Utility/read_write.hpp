@@ -7,17 +7,48 @@
 #include <cmath>
 #include "hdf5.h"
 
-/* wrapper to read integer data from hdf5 file --note that buffer needs to be an array of size 1 for single entries-- */
-int read_integer_data (hid_t file, std::string path_in_file, int *buffer);
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/* wrapper to read double data from hdf5 file --note that buffer needs to be an array of size 1 for single entries-- */
-double read_double_data (hid_t file, std::string path_in_file, double *buffer);
+template<class T>
+T read_single_data (hid_t file, std::string path_in_file, T *buffer) {
+  /* wrapper to read singular data from hdf5 file 
+  --note that buffer needs to be an array of size 1 for single entries-- */
+   
+  const char *fl = path_in_file.c_str(); 
+  hid_t dataset = H5Dopen(file, fl, H5P_DEFAULT);
+  herr_t status = H5Dread(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, buffer);
+
+  H5Dclose(dataset);
+
+  return buffer[0];
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class T>
+void read_array_data (std::string filename, std::string path_in_file, T *buffer) {
+  /* wrapper to read array data from hdf5 file 
+  --note that buffer needs to be the array size-- */
+
+  const char *fl1 = filename.c_str();
+  const char *fl2 = path_in_file.c_str();
+
+  // open the file pointer
   
-/* wrapper to read integer array data from hdf5 file --note that buffer needs to be the array size-- */
-void read_integer_array (std::string filename, std::string path_in_file, int *buffer);
+  hid_t file = H5Fopen(fl1, H5F_ACC_RDONLY, H5P_DEFAULT);
+  
+  // read the array
+  
+  hid_t dataset = H5Dopen(file, fl2, H5P_DEFAULT);
+  herr_t status = H5Dread(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, buffer);
 
-/* wrapper to read double array data from hdf5 file --note that buffer needs to be the array size-- */
-void read_double_array (std::string filename, std::string path_in_file, double *buffer);
+  H5Dclose(dataset);
+  H5Fclose(file);
+
+  return;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /* read the position data at a single timestep */  
 void read_single_pos_data(int step, hid_t dataset, hid_t dataspace, double **x, double **y, int natoms);
