@@ -45,7 +45,7 @@ class Analyser:
             raise "The beadsorpols should be either polymers, or beads"
     
         if self.sim_type == "filaments":
-            self.simdata = data_structures.SimulationBidispersePolymers(self.datafolder) 
+            self.simdata = data_structures.SimulationFilaments(self.datafolder) 
         elif self.sim_type == "cells":
             self.simdata = data_structures.SimulationCells(self.datafolder)     
         else:

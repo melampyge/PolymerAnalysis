@@ -31,7 +31,7 @@ class Beads:
         
         ### bead information
         
-        self.xu = np.array(fl['/pols/comu'], dtype=np.float32)
+        self.xu = np.array(fl['/beads/xu'], dtype=np.float32)
             
         return 
         
@@ -70,13 +70,13 @@ class Beads:
 class Polymers:
     """ container for polymer information"""
     
-    def __init__(self, folder):
+    def __init__(self, folder, sim_type):
         
-        self.read_data(folder)
+        self.read_data(folder, sim_type)
 
         return
         
-    def read_data(self, folder):
+    def read_data(self, folder, sim_type):
         """ read polymer data from hdf5 file"""
         
         ### file path
@@ -88,7 +88,12 @@ class Polymers:
         
         ### polymer information
         
-        self.xu = np.array(fl['/pols/comu'], dtype=np.float32)
+        if sim_type == "filaments":
+            self.xu = np.array(fl['/pols/comu'], dtype=np.float32)
+        elif sim_type == "cells":
+            self.xu = np.array(fl['/cells/comu'], dtype=np.float32)
+        else:
+            raise "sim_type must be filaments or cells!"
             
         return       
           
@@ -118,8 +123,8 @@ class Simulation:
 
 ##############################################################################
 
-class SimulationBidispersePolymers(Simulation):
-    """ container for general simulation information for bidisperse polymers"""
+class SimulationFilaments(Simulation):
+    """ container for general simulation information for filamentous polymers"""
     
     def __init__(self, datafolder):
         
@@ -177,7 +182,7 @@ class SimulationBidispersePolymers(Simulation):
  
     def read_sim_info(self, folder):
         """ read simulation info from hdf5 file,
-        specific for bidisperse simulations"""
+        specific for filament simulations"""
         
         ### file path
         
@@ -207,6 +212,8 @@ class SimulationBidispersePolymers(Simulation):
         self.dt = 50.0
         self.lx = 221.6
         self.ly = 221.6
+        self.kT = 1.
+        self.gamma_0 = 1.
         
         fl.close()
         
@@ -214,3 +221,113 @@ class SimulationBidispersePolymers(Simulation):
         
 ##############################################################################
      
+class SimulationCells(Simulation):
+    """ container for general simulation information for cells"""
+    
+    def __init__(self, datafolder):
+        
+        self.read_sim_info(datafolder)
+        Simulation.__init__(self, datafolder, self.dt, \
+                            self.density, self.nsteps, self.nbeads, \
+                            self.npols, self.nbpp, self.bl, \
+                            self.sigma, self.lx, self.ly)
+        
+        ### define general physical parameters
+        # NOTE THAT : 
+        # these are defined from the longest length scale polymers
+        
+        self.navg = np.mean(self.nbpp)
+        self.radii = self.get_radius(self.nbpp)
+        self.avg_radius = np.mean(self.radii)
+        self.areas = self.get_cell_area(self.radii)
+        self.avg_area = np.mean(self.area)
+        self.Dt = self.kT/(self.gamma_0*self.navg)
+        self.pe = self.get_pe_of_polymer(self.navg)
+        self.xil = self.get_xil_of_polymer(self.navg)
+        self.tau_diff = self.avg_radius**3 * self.gamma_0 * self.navg / self.avg_radius \
+            / self.kT / 4.
+        self.tau_advec = self.avg_radius * self.gamma_0 / self.fp
+        self.vc = self.fp / self.gamma_0
+        
+        ### generate key parameters that map the phase space
+        
+        self.gen_key_params()
+        
+        return
+    
+    def get_radius(self, nb):
+        """ calculate the radius of the cell"""
+        
+        return nb*self.bond_length/2./np.pi
+        
+    def get_area(self, rad):
+        """ calculate the area of the cell"""
+        
+        return 0.9*rad*np.pi**2
+        
+    def get_pe_of_polymer(self, nb):
+        """ calculate the peclet number of the polymer"""
+        
+        l = self.get_length_of_polymer(nb)
+        
+        return self.fp*l**2/self.kT
+    
+    def get_xil_of_polymer(self, nb):
+        """ calculate the persistence length of the polymer"""
+        
+        l = self.get_length_of_polymer(nb)
+
+        return self.kappa/self.kT/l
+        
+    def gen_key_params(self):
+        """ generate key parameters that help the mapping of the phase space"""
+        
+        key_params = ([('eps', self.eps), \
+                       ('f_m', self.fp), ('kappa_A', self.areak), \
+                       ('kappa_B', self.kappa)])
+        self.phase_params = key_params
+        
+        return
+ 
+    def read_sim_info(self, folder):
+        """ read simulation info from hdf5 file,
+        specific for cell simulations"""
+        
+        ### file path
+        
+        fpath = folder + 'out.h5'
+        assert os.path.exists(fpath), "The out.h5 file does NOT exist for " + fpath
+        fl = h5py.File(fpath, 'r')    
+        
+        ### cell information
+        
+        self.nbpp = np.array(fl['/cells/nbpc'], dtype=np.float32)
+        
+        ### simulation information
+        
+        self.lx = fl['/info/box/x'][...]
+        self.ly = fl['/info/box/y'][...]
+        self.dt = fl['/info/dt'][...]
+        self.nsteps = fl['/info/nsteps'][...]
+        self.npols = fl['/info/ncells'][...]
+        self.nbeads = fl['/info/nbeads'][...]
+        nsamp = fl['/info/nsamp'][...]
+        self.dt *= nsamp
+        
+        ### simulation parameters
+        
+        self.eps = fl['/param/eps'][...]
+        self.density = fl['/param/rho'][...]
+        self.fp = fl['/param/fp'][...]
+        self.areak = fl['/param/areak'][...]
+        self.bl = fl['/param/bl'][...]
+        self.sigma = fl['/param/sigma'][...]
+        self.kappa = fl['/param/kappa'][...]
+        self.kT = 1.
+        self.gamma_0 = 1.
+        
+        fl.close()
+        
+        return
+        
+##############################################################################
