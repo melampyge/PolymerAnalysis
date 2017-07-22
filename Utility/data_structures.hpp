@@ -1,4 +1,6 @@
 
+/* data structures used in the analysis */
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
@@ -213,19 +215,21 @@ Beads::~Beads() {
 
 template<class T>
 class Polymers {
-  /* container for bead data */
+  /* container for polymer data */
   public:
     
     Polymers(std::string filename, T sim, std::string sim_type);
     ~Polymers();
     double **x;
     double **y;
-    
+    T sim;
+  
 };
 
 template<class T>
 Polymers::Polymers(std::string filename, T sim, std::string sim_type) {
   
+  T sim = sim;
   allocate_2d_array(x, sim.nsteps, sim.nbeads);
   allocate_2d_array(y, sim.nsteps, sim.nbeads);
   std::string data_path = "/pols/comu";
