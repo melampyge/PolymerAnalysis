@@ -2,41 +2,56 @@
 /* analysis on neighbours
  such as number of neighbours */
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
 
 #include "AnalyseNeighbours.hpp"
 
 using namespace std;
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
 
 AnalyseNeighbours::AnalyseNeighbours (T sim_, Beads *beads_) {
   
   T sim = sim_;
   Beads *beads = beads_;
+  results = make_tuple(0., 0.);
   
+  return;
 }
 
+/////////////////////////////////////////////////////////////////////////////////
+
 AnalyseNeighbours::~AnalyseNeighbours () { }
+
+/////////////////////////////////////////////////////////////////////////////////
 
 tuple<double, double> AnalyseNeighbours::perform_analysis () {
   
   double avg_num_neigh, avg_num_surface_cells;
   tie(avg_num_neigh, avg_num_surface_cells) = calc_num_neighbours(x, y, sim);
+  results = make_tuple(avg_num_neigh, avg_num_surface_cells)
   
-  return make_tuple(avg_num_neigh, avg_num_surface_cells);
+  return results;
 }
 
-void AnalyseNeighbours::write_analysis_results (double data, string outfilepath) {
+/////////////////////////////////////////////////////////////////////////////////
 
+void AnalyseNeighbours::write_analysis_results (string outfilepath,
+                                                string outfilepath_2) {
+
+  double result_1, result_2;
+  tie(result_1, result_2) = results;
   cout << "Writing the analysis results to the following file: \n" <<
     outfilepath << endl;
-  write_single_analysis_data(data, outfilepath);
+  cout << "Writing the analysis results 2 to the following file: \n" <<
+    outfilepath_2 << endl;
+  write_single_analysis_data(result_1, outfilepath);
+  write_single_analysis_data(result_2, outfilepath_2);
   
   return;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
 
 void AnalyseNeighbours::build_linked_cell_list(const double * const *x,
                                                const double * const *y,
@@ -61,7 +76,7 @@ void AnalyseNeighbours::build_linked_cell_list(const double * const *x,
   return;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
 
 set<int> AnalyseNeighbours::get_neighs_of_a_cell (const int start, const int end,
                                                  const double * const *x,
@@ -69,7 +84,7 @@ set<int> AnalyseNeighbours::get_neighs_of_a_cell (const int start, const int end
                                                  const int step, const double rcut,
                                                  const int nboxes,
                                                  const double lx, const double ly,
-                                                 const vector<int> & cid,
+                                                 const vector<int> & pid,
                                                  const vector<int> & heads,
                                                  const vector<int> & llist) {
   /* get the neighbours of a single cell at a given timestep */
@@ -82,7 +97,7 @@ set<int> AnalyseNeighbours::get_neighs_of_a_cell (const int start, const int end
   // run over each bead of the cell
   
   for (int j = start; j < end; j++) {
-    int host_cell_id = cid[j];
+    int host_cell_id = pid[j];
     
     int xbin = get_bin_number(get_single_img_pos(x[step][j], lx), rcut, nboxes);
     int ybin = get_bin_number(get_single_img_pos(y[step][j], ly), rcut, nboxes);
@@ -107,7 +122,7 @@ set<int> AnalyseNeighbours::get_neighs_of_a_cell (const int start, const int end
           // calculate the distance between the beads
           // if they do not belong to the same cell
           
-          int neigh_cell_id = cid[idx];
+          int neigh_cell_id = pid[idx];
           if (host_cell_id != neigh_cell_id) {
             
             double dx = x[step][idx] - x[step][j];
@@ -137,7 +152,7 @@ set<int> AnalyseNeighbours::get_neighs_of_a_cell (const int start, const int end
 
 map<int, set<int> > AnalyseNeighbours::build_neigh_list (const double * const *x,
                                                          const double * const *y,
-                                                         const vector<int> & cid,
+                                                         const vector<int> & pid,
                                                          const vector<int> & nbpp,
                                                          const vector<int> & heads,
                                                          const vector<int> & llist,
@@ -163,7 +178,7 @@ map<int, set<int> > AnalyseNeighbours::build_neigh_list (const double * const *x
     set<int> neighs_of_this_cell = get_neighs_of_a_cell(bead_idx, last_bead_idx,
                                                         x, y,
                                                         step, rcut, nboxes, lx, ly,
-                                                        cid, heads, llist);
+                                                        pid, heads, llist);
     bead_idx = last_bead_idx;
     
     // add the neighbours of this cell to the neighbour list
@@ -176,7 +191,7 @@ map<int, set<int> > AnalyseNeighbours::build_neigh_list (const double * const *x
   return neigh_list;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
 
 tuple<double, double> AnalyseNeighbours::calc_num_neighbours (const double * const *x,
                                                               const double * const *y) {
@@ -209,7 +224,8 @@ tuple<double, double> AnalyseNeighbours::calc_num_neighbours (const double * con
     
     // build the neighbour list
     
-    map<int, set<int> > neigh_list = build_neigh_list(x, y, sim.cid, sim.nbpp,
+    vector<int> pid = beads.get_pol_ids();
+    map<int, set<int> > neigh_list = build_neigh_list(x, y, pid, sim.nbpp,
                                                       heads, llist,
                                                       sim.npols, rcut,
                                                       sim.nsteps, step,
@@ -237,5 +253,5 @@ tuple<double, double> AnalyseNeighbours::calc_num_neighbours (const double * con
   return make_tuple(avg_num_neigh, avg_num_surface_cells);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
 
