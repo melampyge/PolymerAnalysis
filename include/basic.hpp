@@ -69,7 +69,7 @@ inline double get_single_img_pos (double x, double l) {
 
 /////////////////////////////////////////////////////////////////////////////////
 
-void get_img_pos (double **x, double **y, int nsteps, int natoms, double lx, double ly) {
+inline void get_img_pos (double **x, double **y, int nsteps, int natoms, double lx, double ly) {
   /* calculate the image positions in the central box */
   
   for (int i = 0; i < nsteps; i++) {

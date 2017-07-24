@@ -10,10 +10,22 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////
 
-AnalyseNeighbours::AnalyseNeighbours (T sim_, Beads *beads_) {
+AnalyseNeighbours::AnalyseNeighbours (string datafilename, string forc) {
   
-  T sim = sim_;
-  Beads *beads = beads_;
+  // load the data based on the chosen options
+  
+  Simulation sim(datafilename, forc);
+  
+  Beads beads(datafilename, sim);
+ 
+  // print information
+  
+  cout << "\nData is loaded successfully for the following file: \n" <<
+  datafilename << endl;
+  cout << "nsteps = " << sim.nsteps << endl;
+  cout << "npols = " << sim.npols << endl;
+  cout << "nbeads = " << sim.nbeads << endl;
+  
   results = make_tuple(0., 0.);
   
   return;
@@ -28,11 +40,12 @@ AnalyseNeighbours::~AnalyseNeighbours () { }
 tuple<double, double> AnalyseNeighbours::perform_analysis () {
   
   double avg_num_neigh, avg_num_surface_cells;
-  tie(avg_num_neigh, avg_num_surface_cells) = calc_num_neighbours(x, y, sim);
-  results = make_tuple(avg_num_neigh, avg_num_surface_cells)
+  tie(avg_num_neigh, avg_num_surface_cells) = calc_num_neighbours(beads.x, beads.y);
+  results = make_tuple(avg_num_neigh, avg_num_surface_cells);
   
   return results;
 }
+
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -53,7 +66,7 @@ void AnalyseNeighbours::write_analysis_results (string outfilepath,
 
 /////////////////////////////////////////////////////////////////////////////////
 
-void AnalyseNeighbours::build_linked_cell_list(const double * const *x,
+void AnalyseNeighbours::build_linked_cell_list (const double * const *x,
                                                const double * const *y,
                                                vector<int> & heads,
                                                vector<int> & llist,
@@ -224,7 +237,7 @@ tuple<double, double> AnalyseNeighbours::calc_num_neighbours (const double * con
     
     // build the neighbour list
     
-    vector<int> pid = beads.get_pol_ids();
+    vector<int> pid = beads.get_pol_ids(sim.npols, sim.nbpp);
     map<int, set<int> > neigh_list = build_neigh_list(x, y, pid, sim.nbpp,
                                                       heads, llist,
                                                       sim.npols, rcut,

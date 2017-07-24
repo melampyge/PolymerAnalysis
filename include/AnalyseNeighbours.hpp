@@ -23,44 +23,43 @@
 #include "data_structures.hpp"
 #include "basic.hpp"
 #include "read_write.hpp"
-#include "analyser.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////
 
-template<class T>
-class AnalyseNeighbours : public Analyser {
+class AnalyseNeighbours {
 public:
   
-  T sim;
-  Beads *beads;
-  tuple<double, double> results;
+  Simulation sim;
+  Beads beads;
+  std::tuple<double, double> results;
   
-  AnalyseNeighbours(T sim_, Beads *beads_);
+  AnalyseNeighbours(std::string datafilename, std::string forc);
   ~AnalyseNeighbours();
-  tuple<double, double> perform_analysis ();
-  void write_analysis_results (string outfilepath, string outfilepath_2);
+  std::tuple<double, double> perform_analysis ();
+  void write_analysis_results (std::string outfilepath,
+                               std::string outfilepath_2);
   void build_linked_cell_list(const double * const *x,
                              const double * const *y,
-                             vector<int> & heads,
-                             vector<int> & llist,
+                             std::vector<int> & heads,
+                             std::vector<int> & llist,
                              const double wbin, const int nboxes,
                              const int nsize, const int step,
                              const int natoms, const double l);
-  set<int> get_neighs_of_a_cell (const int start, const int end,
+  std::set<int> get_neighs_of_a_cell (const int start, const int end,
                                 const double * const *x,
                                 const double * const *y,
                                 const int step, const double rcut,
                                 const int nboxes,
                                 const double lx, const double ly,
-                                const vector<int> & cid,
-                                const vector<int> & heads,
-                                const vector<int> & llist);
-  map<int, set<int> > build_neigh_list (const double * const *x,
+                                const std::vector<int> & cid,
+                                const std::vector<int> & heads,
+                                const std::vector<int> & llist);
+  std::map<int, std::set<int> > build_neigh_list (const double * const *x,
                                        const double * const *y,
-                                       const vector<int> & cid,
-                                       const vector<int> & nbpp,
-                                       const vector<int> & heads,
-                                       const vector<int> & llist,
+                                       const std::vector<int> & cid,
+                                       const std::vector<int> & nbpp,
+                                       const std::vector<int> & heads,
+                                       const std::vector<int> & llist,
                                        const int npols,
                                        const double rcut,
                                        const int nsteps,
@@ -68,7 +67,7 @@ public:
                                        const int nboxes,
                                        const double lx,
                                        const double ly);
-  tuple<double, double> calc_num_neighbours (const double * const *x,
+  std::tuple<double, double> calc_num_neighbours (const double * const *x,
                                              const double * const *y);
 };
 
