@@ -48,7 +48,7 @@ template<int DIM> const double KDtree<DIM>::BIG(1.0e+99);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int selecti (const int k, int *indx, int n, double *arr) {
+inline int selecti (const int k, int *indx, int n, double *arr) {
   /* permute indx[0..n-1] to make arr[indx[0..k-1]] <= arr[indx[k]] <= arr[indx[k+1..n-1]]
   array arr is not modified
   quickselect (partioning) method is used */

@@ -197,11 +197,12 @@ void write_single_analysis_data (double data, const char *outpath) {
 
 /////////////////////////////////////////////////////////////////////////////////
 
-void write_1d_analysis_data (double *x, int ndata, const char *outpath) {
+void write_1d_analysis_data (const std::vector<double> &x,
+                             const char *outpath) {
   /* write the 1d analysis data to the outfile */
   
   std::ofstream fl(outpath);
-  for (int j = 0; j < ndata; j++) {
+  for (int j = 0; j < x.size(); j++) {
     fl << j << "\t\t" << x[j] << std::endl;
   }
   fl.close();
@@ -211,26 +212,13 @@ void write_1d_analysis_data (double *x, int ndata, const char *outpath) {
 
 /////////////////////////////////////////////////////////////////////////////////
 
-void write_1d_vec_analysis_data (const std::vector<double> &x,
-                                 int ndata, const char *outpath) {
-  /* write the 1d vector analysis data to the outfile */
-  
-  std::ofstream fl(outpath);
-  for (int j = 0; j < ndata; j++) {
-    fl << j << "\t\t" << x[j] << std::endl;
-  }
-  fl.close();
-  
-  return;
-}
-
-/////////////////////////////////////////////////////////////////////////////////
-
-void write_2d_analysis_data (double *x, double *y, double ndata, const char *outpath) {
+void write_2d_analysis_data (const std::vector<double> &x,
+			     const std::vector<double> &y, 
+			     const char *outpath) {
   /* write the 2d analysis data to the outfile */
   
   std::ofstream fl(outpath);
-  for (int j = 0; j < ndata; j++) {
+  for (int j = 0; j < x.size(); j++) {
     fl << x[j] << "\t\t" << y[j] << std::endl;
   }
   fl.close();

@@ -12,11 +12,6 @@ using namespace std;
 
 AnalyseNeighbours::AnalyseNeighbours (const char *datafilename, char *forc) : 
     sim(datafilename, forc), beads(datafilename, sim) {
-  
-  // load the data based on the chosen options
-  
-//   Simulation sim(datafilename, forc);
-//   Beads beads(datafilename, sim);
  
   // print information
   
@@ -37,13 +32,13 @@ AnalyseNeighbours::~AnalyseNeighbours () { }
 
 /////////////////////////////////////////////////////////////////////////////////
 
-tuple<double, double> AnalyseNeighbours::perform_analysis () {
+void AnalyseNeighbours::perform_analysis () {
   
   double avg_num_neigh, avg_num_surface_cells;
   tie(avg_num_neigh, avg_num_surface_cells) = calc_num_neighbours(beads.x, beads.y);
   results = make_tuple(avg_num_neigh, avg_num_surface_cells);
   
-  return results;
+  return;
 }
 
 

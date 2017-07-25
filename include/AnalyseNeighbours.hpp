@@ -34,7 +34,7 @@ public:
   
   AnalyseNeighbours(const char *datafilename, char *forc);
   ~AnalyseNeighbours();
-  std::tuple<double, double> perform_analysis ();
+  void perform_analysis ();
   void write_analysis_results (const char *outfilepath,
                                const char *outfilepath_2);
   void build_linked_cell_list(const double * const *x,

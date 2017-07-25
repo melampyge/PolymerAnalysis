@@ -19,6 +19,11 @@
 #include <algorithm>
 
 #include "AnalyseNeighbours.hpp"
+#include "AnalysePairCorr.hpp"
+#include "AnalyseStaticStruct.hpp"
+#include "AnalyseLatticeOrder.hpp"
+#include "AnalyseAreaDiff.hpp"
+#include "AnalyseDensityHistogram.hpp"
 
 #define pi M_PI
 

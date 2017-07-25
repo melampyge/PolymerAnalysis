@@ -23,22 +23,30 @@ int main (int argc, char *argv[]) {
   char *beadsorpols = argv[2];
   char *filsorcells = argv[3];
   char *outfilename = argv[4];
-  char *outfilename_2 = argv[5];
+  //char *outfilename_2 = argv[5];
   
   cout << "Data file: " << datafilename << endl;
   cout << "Analysis to be conducted on: " << beadsorpols << endl;
   cout << "Simulation type: " << filsorcells << endl;
-  cout << "Analysis results output file name: " << outfilename << endl;
-  cout << "Analysis results output file name: " << outfilename_2 << endl;
+  cout << "Analysis results output file path: " << outfilename << endl;
+  //cout << "Analysis results output file path: " << outfilename_2 << endl;
   
   // perform the analysis
   
-  AnalyseNeighbours analysis(datafilename, filsorcells);
+//   AnalyseNeighbours analysis(datafilename, filsorcells);
+/*  AnalysePairCorr analysis(datafilename, filsorcells);*/
+/*  AnalyseStaticStruct analysis(datafilename, filsorcells); */
+/*  AnalyseLatticeOrder analysis(datafilename, filsorcells);*/
+//   AnalyseAreaDiff analysis(datafilename, filsorcells);
+  AnalyseDensityHistogram analysis(datafilename, filsorcells);
+
   analysis.perform_analysis();
+  
   
   // write the computed results
   
-  analysis.write_analysis_results(outfilename, outfilename_2);
+  //analysis.write_analysis_results(outfilename, outfilename_2);
+  analysis.write_analysis_results(outfilename);
   
   return 0;
 }

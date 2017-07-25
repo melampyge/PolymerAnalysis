@@ -54,18 +54,14 @@ void write_single_analysis_data (double data, const char *outpath);
 /////////////////////////////////////////////////////////////////////////////////
 
 /* write the 1d analysis data to the outfile */
-void write_1d_analysis_data (double *x, int ndata, const char *outpath);
-
-/////////////////////////////////////////////////////////////////////////////////
-
-/* write the 1d vector analysis data to the outfile */
-void write_1d_vec_analysis_data (const std::vector<double> &x,
-                                 int ndata, const char *outpath);
+void write_1d_analysis_data (const std::vector<double> &x,
+                             const char *outpath);
 
 /////////////////////////////////////////////////////////////////////////////////
 
 /* write the 2d analysis data to the outfile */
-void write_2d_analysis_data (double *x, double *y, double ndata,
+void write_2d_analysis_data (const std::vector<double> &x,
+			     const std::vector<double> &y,
                              const char *outpath);
 
 /////////////////////////////////////////////////////////////////////////////////
