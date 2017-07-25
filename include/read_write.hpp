@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include <string>
 #include <fstream>
 #include <vector>
 #include <cmath>
@@ -13,46 +12,27 @@
 
 /////////////////////////////////////////////////////////////////////////////////
 
-template<class T>
-T read_single_data (hid_t file, std::string path_in_file, T *buffer) {
-  /* wrapper to read singular data from hdf5 file 
-  --note that buffer needs to be an array of size 1 for single entries-- */
-   
-  const char *fl = path_in_file.c_str(); 
-  hid_t dataset = H5Dopen(file, fl, H5P_DEFAULT);
-  herr_t status = H5Dread(dataset, H5T_NATIVE_DOUBLE, H5S_ALL,
-                          H5S_ALL, H5P_DEFAULT, buffer);
+/* wrapper to read singular integer data from hdf5 file 
+--note that buffer needs to be an array of size 1 for single entries-- */
+int read_single_int_data (hid_t file, const char *path_in_file);
+  
+/////////////////////////////////////////////////////////////////////////////////
 
-  H5Dclose(dataset);
-
-  return buffer[0];
-}
+/* wrapper to read singular double data from hdf5 file 
+--note that buffer needs to be an array of size 1 for single entries-- */
+double read_single_double_data (hid_t file, const char *path_in_file);
 
 /////////////////////////////////////////////////////////////////////////////////
 
-template<class T>
-void read_array_data (std::string filename, std::string path_in_file, T *buffer) {
-  /* wrapper to read array data from hdf5 file 
-  --note that buffer needs to be the array size-- */
+/* wrapper to read integer array data from hdf5 file 
+--note that buffer needs to be the array size-- */
+void read_int_array_data (const char *filename, const char *path_in_file, int *buffer);
 
-  const char *fl1 = filename.c_str();
-  const char *fl2 = path_in_file.c_str();
+/////////////////////////////////////////////////////////////////////////////////
 
-  // open the file pointer
-  
-  hid_t file = H5Fopen(fl1, H5F_ACC_RDONLY, H5P_DEFAULT);
-  
-  // read the array
-  
-  hid_t dataset = H5Dopen(file, fl2, H5P_DEFAULT);
-  herr_t status = H5Dread(dataset, H5T_NATIVE_DOUBLE, H5S_ALL,
-                          H5S_ALL, H5P_DEFAULT, buffer);
-
-  H5Dclose(dataset);
-  H5Fclose(file);
-
-  return;
-}
+/* wrapper to read double array data from hdf5 file 
+--note that buffer needs to be the array size-- */
+void read_double_array_data (const char *filename, const char *path_in_file, double *buffer);
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -63,30 +43,30 @@ void read_single_pos_data (int step, hid_t dataset, hid_t dataspace,
 /////////////////////////////////////////////////////////////////////////////////
 
 /* read position data in hdf5 format all at once */
-void read_all_pos_data (std::string filename, double **x, double **y, int nsteps,
-                        int natoms, std::string datapath);
+void read_all_pos_data (const char *filename, double **x, double **y, int nsteps,
+                        int natoms, const char *datapath);
 
 /////////////////////////////////////////////////////////////////////////////////
 
 /* write analysis data with single parameter to the outfile */
-void write_single_analysis_data (double data, std::string outpath);
+void write_single_analysis_data (double data, const char *outpath);
 
 /////////////////////////////////////////////////////////////////////////////////
 
 /* write the 1d analysis data to the outfile */
-void write_1d_analysis_data (double *x, int ndata, std::string outpath);
+void write_1d_analysis_data (double *x, int ndata, const char *outpath);
 
 /////////////////////////////////////////////////////////////////////////////////
 
 /* write the 1d vector analysis data to the outfile */
 void write_1d_vec_analysis_data (const std::vector<double> &x,
-                                 int ndata, std::string outpath);
+                                 int ndata, const char *outpath);
 
 /////////////////////////////////////////////////////////////////////////////////
 
 /* write the 2d analysis data to the outfile */
 void write_2d_analysis_data (double *x, double *y, double ndata,
-                             std::string outpath);
+                             const char *outpath);
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -95,6 +75,6 @@ void write_multid_analysis_data (const std::vector<double> &w,
                                  const std::vector<double> &vx,
                                  const std::vector<double> &vy,
                                  const int ndata, const int nsteps,
-                                 std::string outpath);
+                                 const char *outpath);
 
 /////////////////////////////////////////////////////////////////////////////////

@@ -9,7 +9,6 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include <string>
 #include <sstream>
 #include <vector>
 #include <cstdlib>
@@ -33,11 +32,11 @@ public:
   Beads beads;
   std::tuple<double, double> results;
   
-  AnalyseNeighbours(std::string datafilename, std::string forc);
+  AnalyseNeighbours(const char *datafilename, char *forc);
   ~AnalyseNeighbours();
   std::tuple<double, double> perform_analysis ();
-  void write_analysis_results (std::string outfilepath,
-                               std::string outfilepath_2);
+  void write_analysis_results (const char *outfilepath,
+                               const char *outfilepath_2);
   void build_linked_cell_list(const double * const *x,
                              const double * const *y,
                              std::vector<int> & heads,

@@ -128,7 +128,7 @@ template<class T>
 inline void deallocate_1d_array (T *&arr) {
   /* deallocate 1D array */
   
-  delete [] arr;
+  delete arr;
   
   return;
 }
@@ -142,7 +142,7 @@ inline void deallocate_2d_array (T **&arr, int ndata) {
   for (int i = 0; i < ndata; i++) {
     delete [] arr[i];
   }
-  delete [] arr;
+  delete arr;
   
   return;
 }

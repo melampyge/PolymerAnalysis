@@ -10,18 +10,18 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////
 
-AnalyseNeighbours::AnalyseNeighbours (string datafilename, string forc) {
+AnalyseNeighbours::AnalyseNeighbours (const char *datafilename, char *forc) : 
+    sim(datafilename, forc), beads(datafilename, sim) {
   
   // load the data based on the chosen options
   
-  Simulation sim(datafilename, forc);
-  
-  Beads beads(datafilename, sim);
+//   Simulation sim(datafilename, forc);
+//   Beads beads(datafilename, sim);
  
   // print information
   
   cout << "\nData is loaded successfully for the following file: \n" <<
-  datafilename << endl;
+    datafilename << endl;
   cout << "nsteps = " << sim.nsteps << endl;
   cout << "npols = " << sim.npols << endl;
   cout << "nbeads = " << sim.nbeads << endl;
@@ -49,8 +49,8 @@ tuple<double, double> AnalyseNeighbours::perform_analysis () {
 
 /////////////////////////////////////////////////////////////////////////////////
 
-void AnalyseNeighbours::write_analysis_results (string outfilepath,
-                                                string outfilepath_2) {
+void AnalyseNeighbours::write_analysis_results (const char *outfilepath,
+                                                const char *outfilepath_2) {
 
   double result_1, result_2;
   tie(result_1, result_2) = results;

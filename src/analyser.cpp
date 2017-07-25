@@ -7,6 +7,7 @@
 
 using namespace std;
 
+
 /////////////////////////////////////////////////////////////////////////////////
 
 int main (int argc, char *argv[]) {
@@ -14,16 +15,21 @@ int main (int argc, char *argv[]) {
      argv[2] -> beadsorpols          (make a choice between reading beads or polymers)
      argv[3] -> filsorcells          (make a choice of sim type between filaments or cells)
      argv[4...] -> outfilename(s)... (path of the analysis results file)
-   
    */
   
   // get command line arguments
   
-  string datafilename = argv[1];
-  string beadsorpols = argv[2];
-  string filsorcells = argv[3];
-  string outfilename = argv[4];
-  string outfilename_2 = argv[5];
+  char *datafilename = argv[1];
+  char *beadsorpols = argv[2];
+  char *filsorcells = argv[3];
+  char *outfilename = argv[4];
+  char *outfilename_2 = argv[5];
+  
+  cout << "Data file: " << datafilename << endl;
+  cout << "Analysis to be conducted on: " << beadsorpols << endl;
+  cout << "Simulation type: " << filsorcells << endl;
+  cout << "Analysis results output file name: " << outfilename << endl;
+  cout << "Analysis results output file name: " << outfilename_2 << endl;
   
   // perform the analysis
   
@@ -35,7 +41,7 @@ int main (int argc, char *argv[]) {
   analysis.write_analysis_results(outfilename, outfilename_2);
   
   return 0;
-}  
+}
 
 /////////////////////////////////////////////////////////////////////////////////
 

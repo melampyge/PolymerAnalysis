@@ -7,123 +7,102 @@
 
 /////////////////////////////////////////////////////////////////////////////////
 
-Simulation::Simulation(std::string filename, std::string filsorcells) {
+Simulation::Simulation(const char *filename, char *filsorcells) {
   
   nsteps = nbeads = npols = 0;
   bond_length = dt = sigma = lx = ly = 0.;
   kT = gamma_0 = 1.;
   density = kappa = fp = eps = fm = areak = 0.;
-  
-  if (filsorcells == "filaments") {
+    
+  if (strcmp(filsorcells, "filaments") == 0) {
     read_filaments_data(filename);
     simtype = filsorcells;
   }
-  else if (filsorcells == "cells") {
+  else if (strcmp(filsorcells, "cells") == 0) {
     read_cells_data(filename);
     simtype = filsorcells;
-  }
-  else {
-    throw std::runtime_error("filsorcells should be filaments or cells!");
   }
 
   return;
 }
 
-void Simulation::read_filaments_data(std::string filename) {
+void Simulation::read_filaments_data(const char *filename) {
   /* read in the general filaments simualtion data */
-  
-  const char *fl1 = filename.c_str(); 	// type conversion needed for hdf5
-  
+    
   // open the file pointer
   
-  hid_t file = H5Fopen(fl1, H5F_ACC_RDONLY, H5P_DEFAULT);
-  
-  // create buffers to get single data
-  // --note that buffer needs to be an array of size 1 for single entries--
-  
-  int i_buffer[1];
-  i_buffer[0] = 0;
-  double d_buffer[1];
-  d_buffer[0] = 0.;
+  hid_t file = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
   
   // read in the simulation parameters
   
-  nsteps = read_single_data(file, "/sim/nsteps", i_buffer);
-  nbeads = read_single_data(file, "/sim/nbeads", i_buffer);
-  npols = read_single_data(file, "/sim/npols", i_buffer);
+  nsteps = read_single_int_data(file, "/sim/nsteps");
+  nbeads = read_single_int_data(file, "/sim/nbeads");
+  npols = read_single_int_data(file, "/sim/npols");
   int nbpp_buffer[npols];
   for (int i = 0; i < npols; i++) nbpp_buffer[i] = 0;
-  read_array_data(filename, "/sim/nbpp", nbpp_buffer);
+  read_int_array_data(filename, "/sim/nbpp", nbpp_buffer);
   for (int i = 0; i < npols; i++) nbpp.push_back(nbpp_buffer[i]);
   
   // read in the model parameters
   
-  bond_length = read_single_data(file, "/params/bl", d_buffer);
-  sigma = read_single_data(file, "/params/sigma", d_buffer);
-  dt = read_single_data(file, "/params/dt", d_buffer);
+  bond_length = read_single_double_data(file, "/params/bl");
+  sigma = read_single_double_data(file, "/params/sigma");
+  dt = read_single_double_data(file, "/params/dt");
   
   // read in the box info
   
-  lx = read_single_data(file, "/params/lx", d_buffer);
-  ly = read_single_data(file, "/params/ly", d_buffer);
+  lx = read_single_double_data(file, "/params/lx");
+  ly = read_single_double_data(file, "/params/ly");
   
   // read in model specific parameters
   
-  density = read_single_data(file, "/params/density", d_buffer);
-  kappa = read_single_data(file, "/params/kappa", d_buffer);
-  fp = read_single_data(file, "/params/fp", d_buffer);
+  density = read_single_double_data(file, "/params/density");
+  kappa = read_single_double_data(file, "/params/kappa");
+  fp = read_single_double_data(file, "/params/fp");
   
   H5Fclose(file);
   
   return;
 }
 
-void Simulation::read_cells_data(std::string filename) {
+void Simulation::read_cells_data(const char *filename) {
   /* read in the general cells simualtion data */
-  
-  const char *fl1 = filename.c_str(); 	// type conversion needed for hdf5
-  
+    
   // open the file pointer
   
-  hid_t file = H5Fopen(fl1, H5F_ACC_RDONLY, H5P_DEFAULT);
-  
-  // create buffers to get single data --note that buffer needs to be an array of size 1 for single entries--
-  
-  int i_buffer[1];
-  i_buffer[0] = 0;
-  double d_buffer[1];
-  d_buffer[0] = 0.;
+  hid_t file = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
   
   // read in the simulation parameters
   
-  nsteps = read_single_data(file, "/info/nsteps", i_buffer);
-  nbeads = read_single_data(file, "/info/nbeads", i_buffer);
-  npols = read_single_data(file, "/info/ncells", i_buffer);
-  int nsamp = read_single_data(file, "/info/nsamp", i_buffer);
+  nsteps = read_single_int_data(file, "/info/nsteps");
+  nbeads = read_single_int_data(file, "/info/nbeads");
+  npols = read_single_int_data(file, "/info/ncells");
+  int nsamp = read_single_int_data(file, "/info/nsamp");
+  
   int nbpp_buffer[npols];
   for (int i = 0; i < npols; i++) nbpp_buffer[i] = 0;
-  read_array_data(filename, "/cells/nbpc", nbpp_buffer);
+  read_int_array_data(filename, "/cells/nbpc", nbpp_buffer);
   for (int i = 0; i < npols; i++) nbpp.push_back(nbpp_buffer[i]);
   
   // read in the model parameters
   
-  bond_length = read_single_data(file, "/params/bl", d_buffer);
-  sigma = read_single_data(file, "/params/sigma", d_buffer);
-  dt = read_single_data(file, "/info/dt", d_buffer);
+  bond_length = read_single_double_data(file, "/param/bl");
+  sigma = read_single_double_data(file, "/param/sigma");
+  dt = read_single_double_data(file, "/info/dt");
   dt *= nsamp;
   
   // read in the box info
   
-  lx = read_single_data(file, "/info/box/x", d_buffer);
-  ly = read_single_data(file, "/info/box/y", d_buffer);
+  lx = read_single_double_data(file, "/info/box/x");
+  ly = read_single_double_data(file, "/info/box/y");
   
   // read in the model specific parameters
   
-  eps = read_single_data(file, "/param/eps", d_buffer);
-  density = read_single_data(file, "/param/rho", d_buffer);
-  fm = read_single_data(file, "/param/fp", d_buffer);
-  areak = read_single_data(file, "/param/areak", d_buffer);
-  kappa = read_single_data(file, "/param/kappa", d_buffer);
+  eps = read_single_double_data(file, "/param/eps");
+  density = read_single_double_data(file, "/param/rho");
+  fm = read_single_double_data(file, "/param/fp");
+  areak = read_single_double_data(file, "/param/areak");  
+  kappa = read_single_double_data(file, "/param/kappa");  
   
   H5Fclose(file);
   
@@ -132,7 +111,7 @@ void Simulation::read_cells_data(std::string filename) {
 
 /////////////////////////////////////////////////////////////////////////////////
 
-Beads::Beads(std::string filename, Simulation sim) {
+Beads::Beads(const char *filename, Simulation sim) {
   
   allocate_2d_array(x, sim.nsteps, sim.nbeads);
   allocate_2d_array(y, sim.nsteps, sim.nbeads);
@@ -165,10 +144,10 @@ std::vector<int> Beads::get_pol_ids (int npols, const std::vector<int> &nbpp) {
 
 /////////////////////////////////////////////////////////////////////////////////
 
-Polymers::Polymers(std::string filename, Simulation sim, std::string forc) {
+Polymers::Polymers(const char *filename, Simulation sim, const char *forc) {
   
-  std::string data_path = "/cells/comu";
-  if (forc == "filaments")
+  char *data_path = "/cells/comu";
+  if (strcmp(forc, "filaments") == 0)
     data_path = "/pols/comu";
   allocate_2d_array(x, sim.nsteps, sim.npols);
   allocate_2d_array(y, sim.nsteps, sim.npols);

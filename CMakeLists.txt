@@ -38,22 +38,40 @@ endif()
 
 ### Set compiler flags
 
-add_definitions(-Wall -fno-inline -Wno-unused-variable -g -std=c++14 -O3 ${HDF5_DEFINITIONS})
+add_definitions(-Wall -fno-inline -Wno-unused-variable
+-Wunused-but-set-variable -std=c++14 -O3 ${HDF5_DEFINITIONS})
+if(UNIX)
+		add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
+endif()
 
 ### Set include directories
 
 include_directories(include) 
 include_directories(${HDF5_INCLUDE_DIRS})
+if(UNIX)
+		include_directories(/usr/local/gcc6/include/c++/6.3.0)
+endif()
 
 ### Set link directories
 
 link_directories(${HDF5_LIBRARY_DIRS})
+if(UNIX)
+		#add_library(stdc++ SHARED IMPORTED) 
+		#set_target_properties(stdc++ PROPERTIES
+  	#	IMPORTED_LOCATION "/usr/local/gcc6/lib64"
+  	#	INTERFACE_INCLUDE_DIRECTORIES "/usr/local/gcc6/lib64"
+		#)			
+		link_directories(/usr/local/gcc6/lib64)
+		link_directories(/usr/local/gcc6/lib/gcc/x86_64-redhat-linux/6.3.0)
+endif()
 
 ### Executable 
 
 add_executable(exec src/analyser.cpp src/AnalyseNeighbours.cpp src/data_structures.cpp src/read_write.cpp)
 target_link_libraries(exec ${HDF5_LIBRARIES})
-#target_link_libraries(exec nsolver ${extralibs} ${PYTHON_LIBRARY} boostp boostn)
+if(UNIX)
+		target_link_libraries(exec stdc++ supc++ gcc_s)
+endif()
 
 install(TARGETS exec DESTINATION ${CMAKE_SOURCE_DIR}/bin)
 
