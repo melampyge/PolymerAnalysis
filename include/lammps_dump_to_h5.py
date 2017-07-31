@@ -17,6 +17,7 @@ import h5py
 import subprocess
 import data_structures
 import misc_tools
+import data_separator
 
 ##############################################################################
 
@@ -146,7 +147,8 @@ def read_contextual_info_for_monodisperse_pols():
     
     ### generate folder path
     
-    folder = misc_tools.gen_folder_path(args.folder, args.density, args.kappa, args.fp)
+    folder = args.folder + "density_" + str(args.density) + "/kappa_" + \
+        str(args.kappa) + "/fp_" + str(args.fp) + "/"
     fl = folder + 'out1.dump'
     assert os.path.exists(fl), "\nOUT1.DUMP DOES NOT EXIST FOR: " + folder 
 

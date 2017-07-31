@@ -86,8 +86,10 @@ void AnalyseVelocityStructure::calc_vel_structure(const double * const *x,
 	
 	double dxpar = dx/dr;
 	double dypar = dy/dr; 
-	
 	double par = dvx*dxpar + dvy*dypar;
+	
+	double dxperp = -dy/dr;
+	double dyperp = dx/dr; 	
 	double perp = dvx*dxperp + dvy*dyperp;
 	
       }    // second polymer
