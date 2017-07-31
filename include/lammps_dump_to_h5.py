@@ -18,7 +18,53 @@ import subprocess
 import data_structures
 import misc_tools
 import data_separator
+        
+##############################################################################
 
+class SimulationFilaments(data_structures.Simulation):
+    """ container for general simulation information for bidisperse polymers"""
+    
+    def __init__(self, datafolder, dt, density, nsteps, nbeads, \
+                 npols, nbpp, bl, sigma, lx, ly, kappa, fp):
+        
+        data_structures.Simulation.__init__(self, datafolder, dt, density, nsteps, nbeads, \
+                 npols, nbpp, bl, sigma, lx, ly)
+        self.kappa = kappa
+        self.fp = fp
+        
+        ### define general physical parameters
+        # NOTE THAT : 
+        # these are defined from the longest length scale polymers
+        
+        self.length = self.get_length_of_polymer(self.nbpp[0])
+        self.pe = self.get_pe_of_polymer(self.nbpp[0])
+        self.xil = self.get_xil_of_polymer(self.nbpp[0])
+        self.tau_diff = self.length**3 * self.gamma_0 * self.nbpp[0] / self.length \
+            / self.kT / 4.
+        self.tau_advec = self.length * self.gamma_0 / self.fp
+        self.vc = self.fp / self.gamma_0
+        
+        return
+    
+    def get_length_of_polymer(self, nb):
+        """ calculate the length of the polymer"""
+        
+        return nb*self.bond_length
+    
+    def get_pe_of_polymer(self, nb):
+        """ calculate the peclet number of the polymer"""
+        
+        l = self.get_length_of_polymer(nb)
+        
+        return self.fp*l**2/self.kT
+    
+    def get_xil_of_polymer(self, nb):
+        """ calculate the persistence length of the polymer"""
+        
+        l = self.get_length_of_polymer(nb)
+
+        return self.kappa/self.kT/l
+        
 ##############################################################################
 
 def read_contextual_info_for_bidisperse_pols():
@@ -56,7 +102,8 @@ def read_contextual_info_for_bidisperse_pols():
     
     ### generate folder path
 
-    
+    folder = args.folder + "density_" + str(args.density) + "/kappa_" + \
+        str(args.kappa) + "/fp_" + str(args.fp) + "/"
     fl = folder + 'out1.dump'
     assert os.path.exists(fl), "\nOUT1.DUMP DOES NOT EXIST FOR: " + folder 
 
@@ -180,10 +227,9 @@ def read_contextual_info_for_monodisperse_pols():
     
     sim = data_structures.SimulationFilaments(folder, \
                                      args.timestep*args.nsamp, args.density, \
-                                     args.nsteps, args.nbeads, \
-                                     args.npols, nbpp, args.bl, args.sigma, \
-                                     args.lx, args.ly, args.kappa, args.fp)
-    
+                                     args.nsteps, args.totnbeads, \
+                                     args.totnpols, nbpp, args.bl, args.sigma, \
+                                     args.lx, args.ly, args.kappa, args.fp)    
     return sim, args.last_tstep   
     
 ##############################################################################
