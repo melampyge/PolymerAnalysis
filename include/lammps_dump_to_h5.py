@@ -227,8 +227,8 @@ def read_contextual_info_for_monodisperse_pols():
     
     sim = data_structures.SimulationFilaments(folder, \
                                      args.timestep*args.nsamp, args.density, \
-                                     args.nsteps, args.totnbeads, \
-                                     args.totnpols, nbpp, args.bl, args.sigma, \
+                                     args.nsteps, args.nbeads, \
+                                     args.npols, nbpp, args.bl, args.sigma, \
                                      args.lx, args.ly, args.kappa, args.fp)    
     return sim, args.last_tstep   
     
