@@ -55,8 +55,8 @@ def read_contextual_info_for_bidisperse_pols():
     args = parser.parse_args()
     
     ### generate folder path
+
     
-    folder = misc_tools.gen_folder_path(args.folder, args.density, args.kappa, args.fp)
     fl = folder + 'out1.dump'
     assert os.path.exists(fl), "\nOUT1.DUMP DOES NOT EXIST FOR: " + folder 
 
@@ -104,7 +104,7 @@ def read_contextual_info_for_bidisperse_pols():
     nbpp[0:args.npolsl] *= args.nbpp_long
     nbpp[args.npolsl:] *= args.nbpp_short
     
-    sim = data_structures.SimulationBidispersePolymers(folder, \
+    sim = data_structures.SimulationFilaments(folder, \
                                      args.timestep*args.nsamp, args.density, \
                                      args.nsteps, args.totnbeads, \
                                      args.totnpols, nbpp, args.bl, args.sigma, \
@@ -178,7 +178,7 @@ def read_contextual_info_for_monodisperse_pols():
     
     nbpp = np.ones((args.npols), dtype=np.int32) * args.nbpp
     
-    sim = data_structures.SimulationBidispersePolymers(folder, \
+    sim = data_structures.SimulationFilaments(folder, \
                                      args.timestep*args.nsamp, args.density, \
                                      args.nsteps, args.nbeads, \
                                      args.npols, nbpp, args.bl, args.sigma, \
