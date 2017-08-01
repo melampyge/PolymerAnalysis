@@ -7,6 +7,7 @@ import numpy as np
 from collections import OrderedDict
 import os
 import h5py
+import misc_tools
 
 ##############################################################################
 
@@ -65,6 +66,13 @@ class Beads:
 
         return
 
+    def calc_img_positions(self, l):
+        """ calculate image positions in the central box"""
+
+        self.xi = misc_tools.get_img_pos(self.xu, l)
+
+        return
+
 ##############################################################################
 
 class Polymers:
@@ -96,6 +104,14 @@ class Polymers:
             raise "sim_type must be filaments or cells!"
 
         return
+
+    def calc_img_positions(self, l):
+        """ calculate image positions in the central box"""
+
+        self.xi = misc_tools.get_img_pos(self.xu, l)
+
+        return
+
 
 ##############################################################################
 

@@ -211,7 +211,7 @@ def main():
     print "folder = ", args.folder
 
     print "Calculating image positions of beads"
-    beads.xi = misc_tools.get_img_pos(beads.xu, sim.lx)
+    beads.calc_img_positions(sim.lx)
 
     if args.colorid == "orient":
         print "Calculating bond orientations"
