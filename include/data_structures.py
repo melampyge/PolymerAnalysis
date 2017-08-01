@@ -202,16 +202,16 @@ class SimulationFilaments(Simulation):
         self.density = float(fl['/params/density'][...])
         self.kappa = float(fl['/params/kappa'][...])
         self.fp = float(fl['/params/fp'][...])
-    #    self.bl = float(fl['/params/bl'][...])
-    #    self.sigma = float(fl['/params/sigma'][...])
-    #    self.dt = float(fl['/params/dt'][...])
-    #    self.lx = float(fl['/params/lx'][...])
-    #    self.ly = float(fl['/params/ly'][...])
-        self.bl = 0.5
-        self.sigma = 1.0
-        self.dt = 50.0
-        self.lx = 221.6
-        self.ly = 221.6
+        self.bl = float(fl['/params/bl'][...])
+        self.sigma = float(fl['/params/sigma'][...])
+        self.dt = float(fl['/params/dt'][...])
+        self.lx = float(fl['/params/lx'][...])
+        self.ly = float(fl['/params/ly'][...])
+        #self.bl = 0.5
+        #self.sigma = 1.0
+        #self.dt = 50.0
+        #self.lx = 221.6
+        #self.ly = 221.6
         self.kT = 1.
         self.gamma_0 = 1.
 
@@ -331,3 +331,4 @@ class SimulationCells(Simulation):
         return
 
 ##############################################################################
+

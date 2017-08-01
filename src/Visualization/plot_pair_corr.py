@@ -6,7 +6,7 @@ Created on Fri Jul 14 17:05:32 2017
 @author: duman
 """
 
-""" Plot mean square displacement"""
+""" Plot pair correlation function"""
 
 ###
 
@@ -27,7 +27,7 @@ import data_separator
 
 ##############################################################################
 
-def get_args():
+def get_args(read_fnc):
     """ get the command line arguments"""
 
     parser = argparse.ArgumentParser()
@@ -52,31 +52,39 @@ def get_args():
     parser.add_argument("-an", "--analysisname", nargs="?", \
                         const="Pair_corr", \
                         help="Name of the analysis, as in Pair_corr")
+    parser.add_argument("-st", "--simtype", \
+                        help="Simulation type --should be highdensfilaments, bidispersefilaments or cells--")
     parser.add_argument("-s","--savepdf", action="store_true", help="Decide whether to save in pdf or not")
     args = parser.parse_args()
 
-    if type(args.eps) and type(args.areak) == None:
-        legend_param, fixed_params = data_separator.read_highdens_fil_param_data(args)
-        args.simtype = "filaments"
-    else:
-        legend_param, fixed_params = data_separator.read_cell_param_data(args)
-        args.simtype = "cells"
+    separator = data_separator.Separator(args, read_fnc)
 
-    print args
-
-    return args, legend_param, fixed_params
+    return separator, args.folder, args.savebase, args.analysisbase, \
+        args.analysisname, args.savepdf
 
 ##############################################################################
 
-def set_plot_props(args, param_choice, fixed_params):
-    """ set plot properties"""
+class PlotProps:
+    """ encapsulate plot properties"""
 
-    xlab = r"\Delta r/2R"
-    ylab = r"g(r)"
-    title = ""
-    legend = ""
+    def __init__(self):
 
-    return xlab, ylab, title, legend
+        self.xlab = r"$\Delta r/2R$"
+        self.ylab = r"$g(r)$"
+        self.title = ""
+        self.legend = ""
+        self.xscale = "linear"
+        self.yscale = "linear"
+        self.set_xlim = True
+        self.set_ylim = False
+        self.xlim = (0., 10.)
+        self.ylim = (0., 100.)
+        self.set_xticks = False
+        self.set_yticks = False
+        self.xticks = []
+        self.yticks = []
+
+        return
 
 ##############################################################################
 
@@ -92,14 +100,15 @@ def normalize_data(x, data, sims):
 
 def main():
 
-    args, legend_param, fixed_params = get_args()
-    x, data, param_choice, sims = data_separator.rearrange_cell_data(args, \
-        legend_param, fixed_params, read_write.read_2d_analysis_data)
+    separator, folder, savebase, analysisbase, analysisname, savepdf = get_args(\
+        read_write.read_2d_analysis_data)
+    x, data, param_choice, sims = separator.out
     p = plotter.GeneralPlot()
-    xlab, ylab, title, legend = set_plot_props(args, param_choice, fixed_params)
+    plotprops = PlotProps()
     normalize_data(x, data, sims)
-    p.plot_2d(x, data, sims, args.savebase, args.analysisname, \
-              xlab, ylab, title, legend, param_choice, args.savepdf)
+    p.plot_2d(x, data, sims, savebase, analysisname, \
+              param_choice, separator, \
+              plotprops, savepdf)
 
     return
 

@@ -80,31 +80,37 @@ class GeneralPlot(Subplots):
         return
 
 
-    def plot_2d(self, x, y, sims, savebase, analysisname, \
-                xlab, ylab, title, legend, param_choice, savepdf):
+    def plot_2d(self, x, y, sims, savebase, analysisname, param_choice, separator, \
+                props, savepdf):
         """ plot 2D analysis data with 1 control parameter as legend"""
 
         os.system("mkdir -p " + savebase)
-        savepath = savebase + analysisname
+        savepath = savebase + analysisname + "/"
+        os.system("mkdir -p " + savepath)
+        savepath = savepath + param_choice + "/"
+        os.system("mkdir -p " + savepath)
 
         keys = np.sort(sims.keys())
         for key in keys:
             xp = x[key]
             yp = y[key]
-            print xp
-            print yp
             sim = sims[key]
 
-            legend, title = data_separator.gen_labels_for_cells(param_choice, sim)
+            legend, title, path = separator.gen_labels_for_cells(param_choice, sim)
 
-            label = legend + "=" + str(key)
+            label = legend + "=" + "{0:.2g}".format(key)
             line0 = self.ax0.plot(xp, yp, \
                                  linewidth=2.0, label=label)
 
+        ### save address
+
+        savepath = savepath + analysisname + "_per_" + param_choice + "_" + path
+        print savepath
+
         ### scales
 
-        #self.ax0.set_xscale('log')
-        #self.ax0.set_yscale('log')
+        self.ax0.set_xscale(props.xscale)
+        self.ax0.set_yscale(props.yscale)
 
         ### title
 
@@ -112,18 +118,22 @@ class GeneralPlot(Subplots):
 
         ### labels
 
-        self.ax0.set_xlabel(xlab, fontsize=40)
-        self.ax0.set_ylabel(ylab, fontsize=40)
+        self.ax0.set_xlabel(props.xlab, fontsize=40)
+        self.ax0.set_ylabel(props.ylab, fontsize=40)
 
         ### limits
 
-        #self.ax0.set_xlim((full_box_downlim, full_box_uplim))
-        #self.ax0.set_ylim((full_box_downlim, full_box_uplim))
+        if props.set_xlim:
+            self.ax0.set_xlim(props.xlim)
+        if props.set_ylim:
+           self.ax0.set_ylim(props.ylim)
 
         ### ticks
 
-        #self.ax0.xaxis.set_ticks(full_box_ticks)
-        #self.ax0.yaxis.set_ticks(full_box_ticks)
+        if props.set_xticks:
+            self.ax0.xaxis.set_ticks(props.xticks)
+        if props.set_yticks:
+            self.ax0.yaxis.set_ticks(props.yticks)
         self.ax0.tick_params(axis='both', which='major', labelsize=30)
 
         ### legend
@@ -144,5 +154,4 @@ class GeneralPlot(Subplots):
         return
 
 ##############################################################################
-
 
