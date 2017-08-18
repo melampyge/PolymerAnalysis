@@ -350,3 +350,44 @@ def plot_phase(plot_specific):
 
 ##############################################################################
 
+def plot_single(plot_specific):
+    """ plot analysis data in single plot type"""
+
+    fig = plt.figure()
+    subp = Subplots(fig)
+    ax0 = subp.addSubplot()
+
+    def func_wrapper(data, sep, savepdf):
+
+        ### generate the save folder path to store the figure
+
+        savefolder = sep.savefolderbase + \
+            "SINGLE_SIM_INSTANCE/"
+        os.system("mkdir -p " + savefolder)
+
+        ### plot the figure
+
+        updated_fig = plot_specific(data, sep, savepdf, fig, ax0)
+
+        ### generate the save file path address to store the figure
+
+        data_separator.assign_physicalvalues(sep.fixed_param, data[data.keys()[0]].sim)
+        savefilepath = savefolder + \
+            + data_separator.gen_path(sep.fixed_param)
+        if savepdf:
+            savefilepath += ".pdf"
+        else:
+            savefilepath += ".png"
+        print "Saving the figure: ", savefilepath
+
+        ### store the figure
+
+        plt.savefig(savefilepath, dpi=300, bbox_inches='tight', pad_inches=0.08)
+        fig.clf()
+
+        return
+
+    return func_wrapper
+
+##############################################################################
+
