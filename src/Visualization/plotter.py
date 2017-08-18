@@ -37,7 +37,7 @@ class Subplots:
 
     totcnt = -1             # Total number of subplots -- static member
 
-    def __init__(self, f, l, s, b, t):
+    def __init__(self, f, l=1.0, s=0.0, b=0.0, t=1):
         self.fig = f        # Figure axes handle
         self.length = l     # Length of the subplot box
         self.sep = s        # Separation distance between subplots
@@ -79,6 +79,79 @@ class GeneralPlot(Subplots):
 
         return
 
+    def plot_1d(self, x, y, sims, savebase, analysisname, param_choice, separator, \
+                props, savepdf):
+        """ plot 1D analysis data with 1 control parameter as legend,
+        and 1 control parameter in the x axis"""
+
+        os.system("mkdir -p " + savebase)
+        savepath = savebase + analysisname + "/"
+        os.system("mkdir -p " + savepath)
+        savepath = savepath + param_choice + "/"
+        os.system("mkdir -p " + savepath)
+
+        keys = np.sort(sims.keys())
+        xp = np.zeros((len(keys)), dtype=np.float32)
+        yp = np.zeros((len(keys)), dtype=np.float32)
+        for j, key in enumerate(keys):
+            xp[j] = x[j]
+            yp[j] = y[key]
+            sim = sims[key]
+
+            xlab, title, path = separator.gen_labels_for_cells(param_choice, sim)
+            print xp[j], yp[j]
+        line0 = self.ax0.scatter(xp, yp, \
+                         s=100)
+
+        ### save address
+
+        savepath = savepath + analysisname + "_per_" + param_choice + "_" + path
+        print savepath
+
+        ### scales
+
+        self.ax0.set_xscale(props.xscale)
+        self.ax0.set_yscale(props.yscale)
+
+        ### title
+
+        self.ax0.set_title(title, fontsize=30)
+
+        ### labels
+
+        self.ax0.set_xlabel(xlab, fontsize=40)
+        self.ax0.set_ylabel(props.ylab, fontsize=40)
+
+        ### limits
+        if props.set_xlim:
+            self.ax0.set_xlim(props.xlim)
+        if props.set_ylim:
+           self.ax0.set_ylim(props.ylim)
+
+        ### ticks
+
+        if props.set_xticks:
+            self.ax0.xaxis.set_ticks(props.xticks)
+        if props.set_yticks:
+            self.ax0.yaxis.set_ticks(props.yticks)
+        self.ax0.tick_params(axis='both', which='major', labelsize=30)
+
+        ### legend
+
+        #self.ax0.legend(bbox_to_anchor=(0.005, 0.,0.65, 1.), loc=2, borderaxespad=0., \
+        #    prop={'size': 20}, mode="expand", frameon=False)
+
+        ### save
+
+        if savepdf:
+            plt.savefig(savepath+".pdf", dpi=300, bbox_inches='tight', pad_inches=0.08)
+        else:
+            plt.savefig(savepath+".png", dpi=300, bbox_inches='tight', pad_inches=0.08)
+
+        self.fig.clf()
+        plt.close()
+
+        return
 
     def plot_2d(self, x, y, sims, savebase, analysisname, param_choice, separator, \
                 props, savepdf):
@@ -152,6 +225,128 @@ class GeneralPlot(Subplots):
         plt.close()
 
         return
+
+##############################################################################
+
+def plot_2d(plot_specific):
+    """ plot analysis data in 2d plot type"""
+
+    fig = plt.figure()
+    subp = Subplots(fig)
+    ax0 = subp.addSubplot()
+
+    def func_wrapper(data, sep, savepdf):
+
+        ### generate the save folder path to store the figure
+
+        savefolder = sep.savefolderbase + \
+            sep.legend_param.physicalparamname.upper() + "/"
+        os.system("mkdir -p " + savefolder)
+
+        ### plot the figure
+
+        updated_fig = plot_specific(data, sep, savepdf, fig, ax0)
+
+        ### generate the save file path address to store the figure
+
+        data_separator.assign_physicalvalues(sep.fixed_param, data[data.keys()[0]].sim)
+        savefilepath = savefolder + data_separator.gen_path(sep.fixed_param)
+        if savepdf:
+            savefilepath += ".pdf"
+        else:
+            savefilepath += ".png"
+        print "Saving the figure: ", savefilepath
+
+        ### store the figure
+
+        plt.savefig(savefilepath, dpi=300, bbox_inches='tight', pad_inches=0.08)
+        fig.clf()
+
+        return
+
+    return func_wrapper
+
+##############################################################################
+
+def plot_1d(plot_specific):
+    """ plot analysis data in 1d plot type"""
+
+    fig = plt.figure()
+    subp = Subplots(fig)
+    ax0 = subp.addSubplot()
+
+    def func_wrapper(data, sep, savepdf):
+
+        ### generate the save folder path to store the figure
+
+        savefolder = sep.savefolderbase + \
+            sep.legend_param.physicalparamname.upper() + "/"
+        os.system("mkdir -p " + savefolder)
+
+        ### plot the figure
+
+        updated_fig = plot_specific(data, sep, savepdf, fig, ax0)
+
+        ### generate the save file path address to store the figure
+
+        data_separator.assign_physicalvalues(sep.fixed_param, data[data.keys()[0]].sim)
+        savefilepath = savefolder + \
+            sep.control_param.physicalparamname.upper() + "_" + data_separator.gen_path(sep.fixed_param)
+        if savepdf:
+            savefilepath += ".pdf"
+        else:
+            savefilepath += ".png"
+        print "Saving the figure: ", savefilepath
+
+        ### store the figure
+
+        plt.savefig(savefilepath, dpi=300, bbox_inches='tight', pad_inches=0.08)
+        fig.clf()
+
+        return
+
+    return func_wrapper
+
+##############################################################################
+
+def plot_phase(plot_specific):
+    """ plot analysis data in phase plot type"""
+
+    fig = plt.figure()
+    subp = Subplots(fig)
+    ax0 = subp.addSubplot()
+
+    def func_wrapper(data, sep, savepdf):
+
+        ### generate the save folder path to store the figure
+
+        savefolder = sep.savefolderbase + \
+            sep.control_param[0].physicalparamname.upper() + "/"
+        os.system("mkdir -p " + savefolder)
+
+        ### plot the figure
+
+        updated_fig = plot_specific(data, sep, savepdf, fig, ax0)
+
+        ### generate the save file path address to store the figure
+
+        data_separator.assign_physicalvalues(sep.fixed_param, data[data.keys()[0]].sim)
+        savefilepath = savefolder + \
+            sep.control_param[1].physicalparamname.upper() + "_" + data_separator.gen_path(sep.fixed_param)
+        if savepdf:
+            savefilepath += ".pdf"
+        else:
+            savefilepath += ".png"
+        print "Saving the figure: ", savefilepath
+
+        ### store the figure
+
+        plt.savefig(savefilepath, dpi=300, bbox_inches='tight', pad_inches=0.08)
+        fig.clf()
+
+        return
+
+    return func_wrapper
 
 ##############################################################################
 

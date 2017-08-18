@@ -228,6 +228,29 @@ void write_2d_analysis_data (const std::vector<double> &x,
 
 /////////////////////////////////////////////////////////////////////////////////
 
+void write_8d_analysis_data (const std::vector<double> &v1,
+                             const std::vector<double> &v2,
+                             const std::vector<double> &v3,
+                             const std::vector<double> &v4,
+                             const std::vector<double> &v5,
+                             const std::vector<double> &v6,
+                             const std::vector<double> &v7,
+                             const std::vector<double> &v8,
+                             const char *outpath) {
+  /* write 8d analysis data to a single outfile */
+
+  std::ofstream fl(outpath);
+  for (unsigned j = 0; j < v1.size(); j++) {
+    fl << v1[j] << "\t" << v2[j] << "\t" << v3[j] << "\t" << v4[j] <<
+      "\t" << v5[j] << "\t" << v6[j] << "\t" << v7[j] << "\t" <<
+      v8[j] << std::endl;
+  }
+  fl.close();
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+
 void write_multid_analysis_data (const std::vector<double> &w,
                                  const std::vector<double> &vx,
                                  const std::vector<double> &vy,
@@ -253,3 +276,4 @@ void write_multid_analysis_data (const std::vector<double> &w,
 }
 
 /////////////////////////////////////////////////////////////////////////////////
+

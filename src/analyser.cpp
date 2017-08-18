@@ -40,6 +40,13 @@ int main (int argc, char *argv[]) {
     analysis.perform_analysis();    
     analysis.write_analysis_results(outfilename, outfilename_2);
   }
+  else if (strcmp(analysisname, "Vorticity") == 0) {   
+    char *outfilename_2 = argv[6];  
+    cout << "Analysis results output file path: " << outfilename_2 << endl;
+    AnalyseVorticity analysis(datafilename, filsorcells);
+    analysis.perform_analysis();    
+    analysis.write_analysis_results(outfilename, outfilename_2);
+  }
   else if (strcmp(analysisname, "Static_struct") == 0) { 	
     AnalyseStaticStruct analysis(datafilename, filsorcells);
     analysis.perform_analysis();  
@@ -64,8 +71,28 @@ int main (int argc, char *argv[]) {
     AnalyseDensityHistogram analysis(datafilename, filsorcells);
     analysis.perform_analysis();  
     analysis.write_analysis_results(outfilename);      
-  }    
-  
+  }   
+  else if (strcmp(analysisname, "Inter_scattering_subt") == 0) {
+    AnalyseInterScattering analysis(datafilename, filsorcells);
+    analysis.perform_analysis();
+    analysis.write_analysis_results(outfilename);
+  }
+  else if (strcmp(analysisname, "Sp_velocity_corr_subt") == 0) {
+    AnalyseSpatialVelocityCorr analysis(datafilename, filsorcells);
+    analysis.perform_analysis();
+    analysis.write_analysis_results(outfilename);
+  }
+  else if (strcmp(analysisname, "Velocity_structure") == 0) {
+    AnalyseVelocityStructure analysis(datafilename, filsorcells);
+    analysis.perform_analysis();
+    analysis.write_analysis_results(outfilename);
+  }
+  else if (strcmp(analysisname, "Energy_spectrum") == 0) {
+    AnalyseEnergySpectrum analysis(datafilename, filsorcells);
+    analysis.perform_analysis();
+    analysis.write_analysis_results(outfilename);
+  }
+
   return 0;
 }
 

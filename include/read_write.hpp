@@ -66,6 +66,19 @@ void write_2d_analysis_data (const std::vector<double> &x,
 
 /////////////////////////////////////////////////////////////////////////////////
 
+/* write 8d analysis data to a single outfile */
+void write_8d_analysis_data (const std::vector<double> &v1,
+                             const std::vector<double> &v2,
+                             const std::vector<double> &v3,
+                             const std::vector<double> &v4,
+                             const std::vector<double> &v5,
+                             const std::vector<double> &v6,
+                             const std::vector<double> &v7,
+                             const std::vector<double> &v8,
+                             const char *outpath);
+
+/////////////////////////////////////////////////////////////////////////////////
+
 /* write multid analysis data to the outfile */
 void write_multid_analysis_data (const std::vector<double> &w,
                                  const std::vector<double> &vx,
@@ -74,3 +87,4 @@ void write_multid_analysis_data (const std::vector<double> &w,
                                  const char *outpath);
 
 /////////////////////////////////////////////////////////////////////////////////
+

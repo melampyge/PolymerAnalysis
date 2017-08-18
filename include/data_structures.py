@@ -142,30 +142,45 @@ class Simulation:
 class SimulationFilaments(Simulation):
     """ container for general simulation information for filamentous polymers"""
 
-    def __init__(self, datafolder):
+    def __init__(self, datafolder, **kwargs):
 
-        self.read_sim_info(datafolder)
-        Simulation.__init__(self, datafolder, self.dt, \
-                            self.density, self.nsteps, self.nbeads, \
-                            self.npols, self.nbpp, self.bl, \
-                            self.sigma, self.lx, self.ly)
+        self.state = 1
+        if os.path.exists(datafolder+"out.h5") == 0:
+            self.state = 0
 
-        ### define general physical parameters
-        # NOTE THAT :
-        # these are defined from the longest length scale polymers
+        if self.state:
+            self.read_sim_info(datafolder)
+            Simulation.__init__(self, datafolder, self.dt, \
+                                self.density, self.nsteps, self.nbeads, \
+                                self.npols, self.nbpp, self.bl, \
+                                self.sigma, self.lx, self.ly)
 
-        self.length = self.get_length_of_polymer(self.nbpp[0])
-        self.pe = self.get_pe_of_polymer(self.nbpp[0])
-        self.xil = self.get_xil_of_polymer(self.nbpp[0])
-        self.tau_diff = self.length**3 * self.gamma_0 * self.nbpp[0] / self.length \
-            / self.kT / 4.
-        self.tau_advec = self.length * self.gamma_0 / self.fp
-        self.vc = self.fp / self.gamma_0
+            ### define general physical parameters
+            # NOTE THAT :
+            # these are defined from the longest length scale polymers
 
-        ### generate key parameters that map the phase space
+            self.length = self.get_length_of_polymer(self.nbpp[0])
+            self.pe = self.get_pe_of_polymer(self.nbpp[0])
+            self.xil = self.get_xil_of_polymer(self.nbpp[0])
+            self.tau_diff = self.length**3 * self.gamma_0 * self.nbpp[0] / self.length \
+                / self.kT / 4.
+            self.tau_advec = self.length * self.gamma_0 / self.fp
+            self.vc = self.fp / self.gamma_0
 
-        self.gen_key_params()
+            ### generate key parameters that map the phase space
 
+            self.gen_key_params()
+
+        else:
+            print "out.h5 file does not exist for ", datafolder
+            if kwargs is not None:
+                for key, value in kwargs.iteritems():
+                    self.density = value.density
+                    self.kappa = value.kappa
+                    self.fp = value.fp
+                    self.pe = -1
+                    self.xil = -1
+                    self.npols = 2000
         return
 
     def get_length_of_polymer(self, nb):
@@ -240,34 +255,48 @@ class SimulationFilaments(Simulation):
 class SimulationCells(Simulation):
     """ container for general simulation information for cells"""
 
-    def __init__(self, datafolder):
+    def __init__(self, datafolder, **kwargs):
 
-        self.read_sim_info(datafolder)
-        Simulation.__init__(self, datafolder, self.dt, \
-                            self.density, self.nsteps, self.nbeads, \
-                            self.npols, self.nbpp, self.bl, \
-                            self.sigma, self.lx, self.ly)
+        self.state = 1
+        if os.path.exists(datafolder+"out.h5") == 0:
+            self.state = 0
 
-        ### define general physical parameters
-        # NOTE THAT :
-        # these are defined from the longest length scale polymers
+        if self.state:
+            self.read_sim_info(datafolder)
+            Simulation.__init__(self, datafolder, self.dt, \
+                                self.density, self.nsteps, self.nbeads, \
+                                self.npols, self.nbpp, self.bl, \
+                                self.sigma, self.lx, self.ly)
 
-        self.navg = np.mean(self.nbpp)
-        self.radii = self.get_radius(self.nbpp)
-        self.avg_radius = np.mean(self.radii)
-        self.areas = self.get_area(self.radii)
-        self.avg_area = np.mean(self.areas)
-        self.Dt = self.kT/(self.gamma_0*self.navg)
-        self.pe = self.get_pe_of_polymer(self.navg)
-        self.xil = self.get_xil_of_polymer(self.navg)
-        self.tau_diff = self.avg_radius**3 * self.gamma_0 * self.navg / self.avg_radius \
-            / self.kT / 4.
-        self.tau_advec = self.avg_radius * self.gamma_0 / self.fp
-        self.vc = self.fp / self.gamma_0
+            ### define general physical parameters
 
-        ### generate key parameters that map the phase space
+            self.navg = np.mean(self.nbpp)
+            self.radii = self.get_radius(self.nbpp)
+            self.avg_radius = np.mean(self.radii)
+            self.areas = self.get_area(self.radii)
+            self.avg_area = np.mean(self.areas)
+            self.Dt = self.kT/(self.gamma_0*self.navg)
+            self.pe = self.get_pe_of_polymer(self.navg)
+            self.xil = self.get_xil_of_polymer(self.navg)
+            self.tau_diff = self.avg_radius**3 * self.gamma_0 * self.navg / self.avg_radius \
+                / self.kT / 4.
+            self.tau_advec = self.avg_radius * self.gamma_0 / self.fp
+            self.vc = self.fp / self.gamma_0
 
-        self.gen_key_params()
+            ### generate key parameters that map the phase space
+
+            self.gen_key_params()
+
+        else:
+            print "out.h5 file does not exist for ", datafolder
+            if kwargs is not None:
+                for key, value in kwargs.iteritems():
+                    self.eps = value.eps
+                    self.fp = value.fp
+                    self.kappa = value.kappa
+                    self.areak = value.areak
+                    self.pe = -1
+                    self.npols = 6000
 
         return
 
@@ -321,24 +350,24 @@ class SimulationCells(Simulation):
 
         ### simulation information
 
-        self.lx = fl['/info/box/x'][...]
-        self.ly = fl['/info/box/y'][...]
-        self.dt = fl['/info/dt'][...]
-        self.nsteps = fl['/info/nsteps'][...]
-        self.npols = fl['/info/ncells'][...]
-        self.nbeads = fl['/info/nbeads'][...]
-        nsamp = fl['/info/nsamp'][...]
+        self.lx = float(fl['/info/box/x'][...])
+        self.ly = float(fl['/info/box/y'][...])
+        self.dt = float(fl['/info/dt'][...])
+        self.nsteps = float(fl['/info/nsteps'][...])
+        self.npols = float(fl['/info/ncells'][...])
+        self.nbeads = float(fl['/info/nbeads'][...])
+        nsamp = float(fl['/info/nsamp'][...])
         self.dt *= nsamp
 
         ### simulation parameters
 
-        self.eps = fl['/param/eps'][...]
-        self.density = fl['/param/rho'][...]
-        self.fp = fl['/param/fp'][...]
-        self.areak = fl['/param/areak'][...]
-        self.bl = fl['/param/bl'][...]
-        self.sigma = fl['/param/sigma'][...]
-        self.kappa = fl['/param/kappa'][...]
+        self.eps = float(fl['/param/eps'][...])
+        self.density = float(fl['/param/rho'][...])
+        self.fp = float(fl['/param/fp'][...])
+        self.areak = float(fl['/param/areak'][...])
+        self.bl = float(fl['/param/bl'][...])
+        self.sigma = float(fl['/param/sigma'][...])
+        self.kappa = float(fl['/param/kappa'][...])
         self.kT = 1.
         self.gamma_0 = 1.
 

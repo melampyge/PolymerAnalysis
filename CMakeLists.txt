@@ -45,7 +45,7 @@ endif()
 ### Set compiler flags
 
 add_definitions(-Wall -fno-inline -Wno-unused-variable
--Wno-unused-but-set-variable -std=c++14 -O3 ${HDF5_DEFINITIONS})
+-Wno-unused-but-set-variable -Wno-write-strings -std=c++14 -O3 ${HDF5_DEFINITIONS})
 if(UNIX)
 		add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
 endif()
@@ -69,15 +69,19 @@ if(UNIX)
 		#)			
 		link_directories(/usr/local/gcc6/lib64)
 		link_directories(/usr/local/gcc6/lib/gcc/x86_64-redhat-linux/6.3.0)
+    link_directories(/usr/local/lib)
 endif()
 
 ### Executable 
 
-add_executable(exec src/analyser.cpp src/AnalyseNeighbours.cpp
-src/AnalysePairCorr.cpp src/AnalyseStaticStruct.cpp
-src/AnalyseLatticeOrder.cpp src/AnalyseAreaDiff.cpp
-src/AnalyseDensityHistogram.cpp src/data_structures.cpp src/read_write.cpp)
-target_link_libraries(exec ${HDF5_LIBRARIES})
+add_executable(exec src/analyser.cpp src/AnalyseNeighbours.cpp 
+src/AnalysePairCorr.cpp src/AnalyseStaticStruct.cpp 
+src/AnalyseLatticeOrder.cpp src/AnalyseAreaDiff.cpp 
+src/AnalyseDensityHistogram.cpp src/AnalyseInterScattering.cpp 
+src/AnalyseSpatialVelocityCorr.cpp src/AnalyseVorticity.cpp 
+src/AnalyseVelocityStructure.cpp src/AnalyseEnergySpectrum.cpp  
+src/data_structures.cpp src/read_write.cpp)
+target_link_libraries(exec ${HDF5_LIBRARIES} fftw3)
 if(UNIX)
 		target_link_libraries(exec stdc++ supc++ gcc_s)
 endif()

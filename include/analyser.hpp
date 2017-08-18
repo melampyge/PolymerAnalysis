@@ -24,6 +24,11 @@
 #include "AnalyseLatticeOrder.hpp"
 #include "AnalyseAreaDiff.hpp"
 #include "AnalyseDensityHistogram.hpp"
+#include "AnalyseInterScattering.hpp"
+#include "AnalyseSpatialVelocityCorr.hpp"
+#include "AnalyseVorticity.hpp"
+#include "AnalyseVelocityStructure.hpp"
+#include "AnalyseEnergySpectrum.hpp"
 
 #define pi M_PI
 
