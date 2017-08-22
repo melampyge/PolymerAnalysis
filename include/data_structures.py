@@ -259,6 +259,7 @@ class SimulationCells(Simulation):
 
         self.state = 1
         if os.path.exists(datafolder+"out.h5") == 0:
+            print "out.h5 file does not exist for " + datafolder
             self.state = 0
 
         if self.state:
@@ -295,8 +296,9 @@ class SimulationCells(Simulation):
                     self.fp = value.fp
                     self.kappa = value.kappa
                     self.areak = value.areak
-                    self.pe = -1
-                    self.npols = 6000
+            self.pe = -1
+            self.npols = 6000
+            self.avg_radius = 3.1
 
         return
 

@@ -21,6 +21,7 @@
 #include "data_structures.hpp"
 #include "basic.hpp"
 #include "read_write.hpp"
+#include "gen_velocity_grid.hpp"
 
 #define pi M_PI
 #define SUBTRACT_COM 		// whether to subtract center of mass from positions
@@ -55,6 +56,11 @@ public:
   double * calc_velocity_per_step (const double * const *x,
 										  const double * const *y,
 										  int delta, int step); 
+
+  std::tuple<std::vector<double>, std::vector<double> > calc_energy_spectrum_direct_2(
+    std::vector<std::vector<std::vector<double> > > & vx_bin, 
+    std::vector<std::vector<std::vector<double> > > & vy_bin,
+    int delta, int nsteps, int nbins);
  
 };
 

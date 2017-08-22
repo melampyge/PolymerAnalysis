@@ -251,21 +251,20 @@ void write_8d_analysis_data (const std::vector<double> &v1,
 
 /////////////////////////////////////////////////////////////////////////////////
 
-void write_multid_analysis_data (const std::vector<double> &w,
-                                 const std::vector<double> &vx,
-                                 const std::vector<double> &vy,
+void write_vorticity_analysis_data (const std::vector<std::vector<std::vector<double> > > &w,
+                                 const std::vector<std::vector<std::vector<double> > > &vx,
+                                 const std::vector<std::vector<std::vector<double> > > &vy,
                                  const int ndata, const int nsteps,
                                  const char *outpath) {
-  /* write multid analysis data to the outfile */
+  /* write vorticity analysis data to the outfile */
   
   std::ofstream fl(outpath);
   for (int step = 0; step < nsteps; step++) {
     for (int i = 0; i < ndata; i++) {
       for (int j = 0; j < ndata; j++) {
-        int idx = step*ndata*ndata + ndata*i + j;
-        fl << step << "\t" << i << "\t" << j << "\t" << w[idx] << "\t"
-        << vx[idx] << "\t" << vy[idx] << "\t"
-        << sqrt(vx[idx]*vx[idx]+vy[idx]*vy[idx]) << std::endl;
+        fl << step << "\t" << i << "\t" << j << "\t" << w[step][i][j] << "\t"
+        << vx[step][i][j] << "\t" << vy[step][i][j] << "\t"
+        << sqrt(vx[step][i][j]*vx[step][i][j]+vy[step][i][j]*vy[step][i][j]) << std::endl;
       }
     }
   }

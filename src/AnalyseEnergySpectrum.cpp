@@ -31,16 +31,28 @@ AnalyseEnergySpectrum::~AnalyseEnergySpectrum () { }
 
 void AnalyseEnergySpectrum::perform_analysis () {
 
-  int delta = 8;                     		   // number of data points between two steps
+  int delta = 4;                     		   // number of data points between two steps
 					       	                         // to calculate velocity
   int nvels = sim.nsteps-delta;       	   // number of data points in the velocity array
   int longest_dist = static_cast<int>(sim.lx+2);   // longest distance allowed by the sim. box
-  vector<double> vx;
-  vector<double> vy;
-  tie(vx, vy) = calc_velocity(polymers.x, polymers.y, delta, nvels);
-  vector<double> cvv = calc_sp_vel_corr(polymers.x, polymers.y, vx, vy, delta, longest_dist, nvels);
-  results = calc_energy_spectrum(cvv, nvels, sim.npols);  
+  //vector<double> vx;
+  //vector<double> vy;
+  //tie(vx, vy) = calc_velocity(polymers.x, polymers.y, delta, nvels);
+  //vector<double> cvv = calc_sp_vel_corr(polymers.x, polymers.y, vx, vy, delta, longest_dist, nvels);
+  //results = calc_energy_spectrum(cvv, nvels, sim.npols);  
   //results = calc_energy_spectrum_direct(delta, nvels, sim.npols);  
+  
+  double wbin = 12.; 			                          // bin width
+  int nbins = static_cast<int>(sim.lx/wbin + 0.5);  // number of bins 
+  
+  vector<vector<vector<double> > > vx_bin;
+  vector<vector<vector<double> > > vy_bin;
+  tie(vx_bin, vy_bin) = get_velocity_grid(
+      polymers.x, polymers.y, nvels, delta,
+      sim.dt, sim.lx, sim.ly, sim.npols, 
+      wbin, nbins);
+ 
+  results = calc_energy_spectrum_direct_2(vx_bin, vy_bin, delta, nvels, nbins);
 
   return;
 }
@@ -379,6 +391,92 @@ tuple<vector<double>, vector<double> > AnalyseEnergySpectrum::calc_energy_spectr
     ek[j] = j*ek[j]/(2*nsteps);
 
   return make_tuple(kvec, ek);
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+
+tuple<vector<double>, vector<double> > AnalyseEnergySpectrum::calc_energy_spectrum_direct_2(
+    vector<vector<vector<double> > > & vx_bin, vector<vector<vector<double> > > & vy_bin,
+    int delta, int nsteps, int nbins) {
+  /* calculate the energy spectrum 
+   by taking the autocorrelation of Fourier transformed binned velocities */
+			       
+  cout << "Calculating the energy spectrum directly in Fourier space over bins" << endl;
+  
+  // note that ndata here refers to the longest distance (longest_dist)
+  // note that steps here refer to velocity data points
+  
+  // allocate the arrays and set preliminary information
+
+  double delk = 2.*pi/sim.lx;
+  int njump = 10;
+  //int ndata = static_cast<int>(sim.lx);
+  int ndata = static_cast<int>(sim.lx/(2.*delk));
+  vector<double> kxvec(ndata, 0.);
+  vector<double> kyvec(ndata, 0.);
+  for (int j = 0; j < ndata; j++) {
+    kxvec[j] = delk*j;  
+    kyvec[j] = delk*j; 
+  }
+  
+  double mink = 0.;
+  double maxk = ceil(sqrt(kxvec[ndata-1]*kxvec[ndata-1] + kyvec[ndata-1]*kyvec[ndata-1]));
+  int Nmax = static_cast<int>(maxk);
+  vector<double> Ek(Nmax, 0.);
+  vector<double> kvec(Nmax, 0.);
+  for (int j = 0; j < Nmax; j++) {
+    kvec[j] = j;
+  }
+  
+  cout << Nmax << endl;
+
+  vector<int> kcount(Nmax, 0);
+  
+  for (int step = 0; step < nsteps; step += njump) {
+      
+    cout << "step / nsteps: " << step << " / " << nsteps << endl;
+    
+    for (int kx = 0; kx < ndata; kx++) {
+	    double kxt = kxvec[kx]; 
+
+	    for (int ky = 0; ky < ndata; ky++) {
+	      double costerm_x = 0.;
+	      double sinterm_x = 0.;
+        double costerm_y = 0.;
+        double sinterm_y = 0.;
+	      double kyt = kyvec[ky];
+
+	      omp_set_num_threads(12);
+	      #pragma omp parallel for reduction(+:costerm_x,sinterm_x,costerm_y,sinterm_y)
+	      for (int j = 0; j < nbins; j++) {
+          for (int n = 0; n < nbins; n++) {
+	          double dotp = kxt*j + kyt*n;
+	          costerm_x += cos(dotp)*vx_bin[step][j][n];
+	          sinterm_x += sin(dotp)*vx_bin[step][j][n];
+            costerm_y += cos(dotp)*vy_bin[step][j][n];
+            sinterm_y += sin(dotp)*vy_bin[step][j][n];
+          }   // y bin loop
+	      } // x bin loop
+
+	    int knorm = static_cast<int>(sqrt(kxt*kxt + kyt*kyt));
+      //cout << delk << "\t" << kx << "\t" << kxt << "\t" << knorm << endl;
+	    kcount[knorm]++;
+      double kxterm = costerm_x*costerm_x + sinterm_x*sinterm_x;
+      double kyterm = costerm_y*costerm_y + sinterm_y*sinterm_y;
+	    Ek[knorm] += kxterm + kyterm;
+
+	    } // ky loop
+    } // kx loop 
+  } // timesteps
+  
+  // perform the normalization
+  
+  double totalData = nsteps/njump;
+  for (int j = 0; j < Nmax; j++)  { 
+    Ek[j] /= (sim.npols*kcount[j]); 
+  }  
+  
+ return make_tuple(kvec, Ek);
 }
 
 /////////////////////////////////////////////////////////////////////////////////

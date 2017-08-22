@@ -18,6 +18,7 @@
 #include <stack>
 #include <algorithm>
 
+#include "gen_velocity_grid.hpp"
 #include "AnalyseNeighbours.hpp"
 #include "AnalysePairCorr.hpp"
 #include "AnalyseStaticStruct.hpp"

@@ -119,7 +119,10 @@ def select_data(data, keys):
         simd[key] = data[key].sim
         kxnorm = 2*np.pi/2/simd[key].avg_radius
         yd[key] = data[key].data[1]
-        xd[key] = data[key].data[0]/kxnorm
+        xd[key] = data[key].data[0]
+        if type(xd[key]) != float:
+            yd[key] /= xd[key]
+        xd[key] /= kxnorm
 
     return xd, yd, simd
 
@@ -150,14 +153,16 @@ def plot_analysis(data, sep, savepdf, *args):
 
         ### curve fitting
 
-        popt, pcov = curve_fit(five_thirds, x[10:-10], y[10:-10])
-        yfit = five_thirds(x[10:-10], popt[0])
+        if type(x) == float:
+            continue
+        popt, pcov = curve_fit(third, x[15:-10], y[15:-10])
+        yfit = third(x[15:-10], popt[0])
 
         sep.legend_param.assign_physicalvalue(sim)
         label = data_separator.gen_label(sep.legend_param)
         line0 = ax0.plot(x, y, label=label, \
                          linewidth=2.0)
-        line1 = ax0.plot(x[10:-10], yfit, '--', label='_nolegend_', \
+        line1 = ax0.plot(x[15:-10], yfit, '--', label='_nolegend_', \
                          linewidth=1.0, c='grey')
 
     ### scales

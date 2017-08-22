@@ -79,12 +79,12 @@ void write_8d_analysis_data (const std::vector<double> &v1,
 
 /////////////////////////////////////////////////////////////////////////////////
 
-/* write multid analysis data to the outfile */
-void write_multid_analysis_data (const std::vector<double> &w,
-                                 const std::vector<double> &vx,
-                                 const std::vector<double> &vy,
+/* write vorticity analysis data to the outfile */
+void write_vorticity_analysis_data (const std::vector<std::vector<std::vector<double> > > &w,
+                                 const std::vector<std::vector<std::vector<double> > > &vx,
+                                 const std::vector<std::vector<std::vector<double> > > &vy,
                                  const int ndata, const int nsteps,
-                                 const char *outpath);
+                                 const char *outpath); 
 
 /////////////////////////////////////////////////////////////////////////////////
 

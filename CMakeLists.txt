@@ -74,20 +74,29 @@ endif()
 
 ### Executable 
 
-add_executable(exec src/analyser.cpp src/AnalyseNeighbours.cpp 
-src/AnalysePairCorr.cpp src/AnalyseStaticStruct.cpp 
-src/AnalyseLatticeOrder.cpp src/AnalyseAreaDiff.cpp 
-src/AnalyseDensityHistogram.cpp src/AnalyseInterScattering.cpp 
-src/AnalyseSpatialVelocityCorr.cpp src/AnalyseVorticity.cpp 
-src/AnalyseVelocityStructure.cpp src/AnalyseEnergySpectrum.cpp  
-src/data_structures.cpp src/read_write.cpp)
-target_link_libraries(exec ${HDF5_LIBRARIES} fftw3)
-if(UNIX)
-		target_link_libraries(exec stdc++ supc++ gcc_s)
-endif()
-if(OPENMP_FOUND)
-		target_link_libraries(exec ${OpenMP_CXX_FLAGS} iomp5 pthread)
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+  set(exec_name "exec_run")
+elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  set(exec_name "exec_debug")
+else()
+  set(exec_name "exec_run")
 endif()
 
-install(TARGETS exec DESTINATION ${CMAKE_SOURCE_DIR}/bin)
+add_executable(${exec_name} src/analyser.cpp src/gen_velocity_grid.cpp
+  src/AnalyseNeighbours.cpp 
+  src/AnalysePairCorr.cpp src/AnalyseStaticStruct.cpp 
+  src/AnalyseLatticeOrder.cpp src/AnalyseAreaDiff.cpp 
+  src/AnalyseDensityHistogram.cpp src/AnalyseInterScattering.cpp 
+  src/AnalyseSpatialVelocityCorr.cpp src/AnalyseVorticity.cpp 
+  src/AnalyseVelocityStructure.cpp src/AnalyseEnergySpectrum.cpp  
+  src/data_structures.cpp src/read_write.cpp)
+target_link_libraries(${exec_name} ${HDF5_LIBRARIES} fftw3)
+if(UNIX)
+		target_link_libraries(${exec_name} stdc++ supc++ gcc_s)
+endif()
+if(OPENMP_FOUND)
+		target_link_libraries(${exec_name} ${OpenMP_CXX_FLAGS} iomp5 pthread)
+endif()
+  
+install(TARGETS ${exec_name} DESTINATION ${CMAKE_SOURCE_DIR}/bin)
 
