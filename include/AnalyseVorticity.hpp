@@ -25,7 +25,7 @@ typedef  std::tuple<std::vector<std::vector<std::vector<double> > >,
     std::vector<std::vector<std::vector<double> > >, 
     std::vector<std::vector<std::vector<double> > >,
     int, int, double, double,
-    std::vector<double>, std::vector<double> > VorticityContainer;
+    std::vector<double>, std::vector<double>, std::vector<double> > VorticityContainer;
  
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -43,7 +43,7 @@ public:
       const char *outfilepath_3, const char *outfilepath_4, const char *outfilepath_5);
 
   std::tuple<std::vector<std::vector<std::vector<double> > >, double, double,
-    std::vector<double>, std::vector<double> > calc_vorticity (
+    std::vector<double>, std::vector<double>, std::vector<double> > calc_vorticity (
 		const std::vector<std::vector<std::vector<double> > > &vx_bin, 
 		const std::vector<std::vector<std::vector<double> > > &vy_bin,
 		double wbin, int nbins, double lx, double ly, int nsteps); 

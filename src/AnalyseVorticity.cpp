@@ -48,14 +48,15 @@ void AnalyseVorticity::perform_analysis () {
   vector<vector<vector<double> > > w_bin;
   double energy;
   double enstrophy;
-  vector<double> energy_per_step;
+  vector<double> vx_per_step;
+  vector<double> vy_per_stepe;
   vector<double> enstrophy_per_step;
-  tie(w_bin, energy, enstrophy, energy_per_step, 
-      enstrophy_per_step) = calc_vorticity(
+  tie(w_bin, energy, enstrophy, vx_per_step, 
+      vy_per_step, enstrophy_per_step) = calc_vorticity(
 			   vx_bin, vy_bin, wbin, nbins, 
 			   sim.lx, sim.ly, nvels);  
   results = make_tuple(w_bin, vx_bin, vy_bin, nbins, nvels, 
-      energy, enstrophy, energy_per_step, enstrophy_per_step);
+      energy, enstrophy, vx_per_step, vy_per_step, enstrophy_per_step);
   
   return;
 }
@@ -73,10 +74,11 @@ void AnalyseVorticity::write_analysis_results (const char *outfilepath,
   int nvels;
   double energy;
   double enstrophy;
-  vector<double> energy_per_step;
+  vector<double> vx_per_step;
+  vector<double> vy_per_step;
   vector<double> enstrophy_per_step;
   tie(w_bin, vx_bin, vy_bin, nbins, nvels, 
-      energy, enstrophy, energy_per_step, enstrophy_per_step) = results;  
+      energy, enstrophy, vx_per_step, vy_per_step, enstrophy_per_step) = results;  
   cout << "Writing the analysis results to the following file: \n" <<
     outfilepath << endl;
   cout << "Writing the analysis results to the following file: \n" <<
@@ -90,7 +92,7 @@ void AnalyseVorticity::write_analysis_results (const char *outfilepath,
   write_vorticity_analysis_data(w_bin, vx_bin, vy_bin, nbins, nvels, outfilepath);
   write_single_analysis_data(energy, outfilepath_2);
   write_single_analysis_data(enstrophy, outfilepath_3);
-  write_1d_analysis_data(energy_per_step, outfilepath_4);
+  write_2d_analysis_data(vx_per_step, vy_per_step, outfilepath_4);
   write_1d_analysis_data(enstrophy_per_step, outfilepath_5);
   
   return;
@@ -98,7 +100,7 @@ void AnalyseVorticity::write_analysis_results (const char *outfilepath,
 
 /////////////////////////////////////////////////////////////////////////////////
 
-tuple<vector<vector<vector<double> > >, double, double, vector<double>, vector<double> > AnalyseVorticity::calc_vorticity (
+tuple<vector<vector<vector<double> > >, double, double, vector<double>, vector<double>, vector<double> > AnalyseVorticity::calc_vorticity (
 		const vector<vector<vector<double> > > &vx_bin, 
 		const vector<vector<vector<double> > > &vy_bin,
 		double wbin, int nbins, double lx, double ly, int nsteps) {
@@ -106,17 +108,25 @@ tuple<vector<vector<vector<double> > >, double, double, vector<double>, vector<d
 
   cout << "Calculating the vorticity field" << endl;
 
-  vector<double> energy_per_step(nsteps, 0.);
-  vector<double> enstrophy_per_step(nsteps, 0.);
+  vector<double> vx_per_bin_per_step;
+  vector<double> vy_per_bin_per_step;
+  vector<double> enstrophy_per_bin_per_step;
   double energy = 0.0;
   double enstrophy = 0.0;
   vector<vector<vector<double> > > w_bin(nsteps, vector<vector<double> >(nbins, vector<double>(nbins, 0.)));
-  
+  double vx2_avg = 0.0;
+  double vy2_avg = 0.0;
+  double vx_avg = 0.0;
+  double vy_avg = 0.0;
+
   for (int step = 0; step < nsteps; step++) {
 
     cout << step << " / " << nsteps << endl;  
 
-    double eng_per_step = 0.0;
+    double vx2_per_step = 0.0;
+    double vy2_per_step = 0.0;
+    double vx_per_step = 0.0;
+    double vy_per_step = 0.0;
     double ens_per_step = 0.0;
         
     for (int i = 0; i < nbins; i++) {
@@ -135,25 +145,49 @@ tuple<vector<vector<vector<double> > >, double, double, vector<double>, vector<d
 	      double wy = vx_bin[step][i][yfi] - vx_bin[step][i][ybi];
 
         w_bin[step][i][j] = wx-wy;
-	      ens_per_step += (wx-wy)*(wx-wy);
 
+	      ens_per_step += (wx-wy)*(wx-wy);
         eng_per_step += vx_bin[step][i][j]*vx_bin[step][i][j] + 
-          vy_bin[step][i][j]*vy_bin[step][i][j];
+          vy_avg_bin[step][i][j]*vy_bin[step][i][j];
+
+        vx_per_bin_per_step.push_back(vx_bin[step][i][j]);
+        vy_per_bin_per_step.push_back(vy_bin[step][i][j]);
+        enstrophy_per_bin_per_step.push_back((wx-wy)*(wx-wy)/2);
+
+        vx2_per_step += vx_bin[step][i][j]*vx_bin[step][i][j]; 
+        vy2_per_step += vy_bin[step][i][j]*vy_bin[step][i][j];
+        vx_per_step += vx_bin[step][i][j];
+        vy_per_step += vy_bin[step][i][j];
 	
       }		// ybins
     }		  // xbins
-    
-    energy_per_step[step] = eng_per_step/(2*nbins*nbins);
-    enstrophy_per_step[step] = ens_per_step/(2*nbins*nbins);
+   
+    vx2_avg += vx2_per_step/(nbins*nbins);
+    vy2_avg += vy2_per_step/(nbins*nbins);
+    vx_avg += vx_per_step/(nbins*nbins);
+    vy_avg += vy_per_step/(nbins*nbins);
+
     energy += eng_per_step/(2*nbins*nbins);
     enstrophy += ens_per_step/(2*nbins*nbins);
 
   }		    // timesteps
   
+  vx2_avg /= nsteps;
+  vy2_avg /= nsteps;
+  vx_avg /= nsteps;
+  vy_avg /= nsteps;
   energy /= nsteps;
   enstrophy /= nsteps;
   
-  return make_tuple(w_bin, energy, enstrophy, energy_per_step, enstrophy_per_step);
+  double vx_std_dev = sqrt(vx2_avg - vx_avg*vx_avg);
+  double vy_std_dev = sqrt(vy2_avg - vy_avg*vy_avg);
+
+  for (int j = 0; j < vx_per_bin_per_step.size(); j++) {
+    vx_per_bin_per_step[j] = (vx_per_bin_per_step[j] - vx_avg)/vx_std_dev;
+    vy_per_bin_per_step[j] = (vy_per_bin_per_step[j] - vy_avg)/vy_std_dev;
+  }
+
+  return make_tuple(w_bin, energy, enstrophy, vx_per_bin_per_step, vy_per_bin_per_step, enstrophy_per_bin_per_step);
 }
 
 /////////////////////////////////////////////////////////////////////////////////
