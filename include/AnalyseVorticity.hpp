@@ -40,7 +40,7 @@ public:
   ~AnalyseVorticity();
   void perform_analysis ();
   void write_analysis_results (const char *outfilepath, const char *outfilepath_2,
-      const char *outfilepath_3, const char *outfilepath_4);
+      const char *outfilepath_3, const char *outfilepath_4, const char *outfilepath_5);
 
   std::tuple<std::vector<std::vector<std::vector<double> > >, double, double,
     std::vector<double>, std::vector<double> > calc_vorticity (

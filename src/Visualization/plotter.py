@@ -371,9 +371,8 @@ def plot_single(plot_specific):
 
         ### generate the save file path address to store the figure
 
-        data_separator.assign_physicalvalues(sep.fixed_param, data[data.keys()[0]].sim)
-        savefilepath = savefolder + \
-            + data_separator.gen_path(sep.fixed_param)
+        data_separator.assign_physicalvalues(sep.fixed_param, data.sim)
+        savefilepath = (savefolder + data_separator.gen_path(sep.fixed_param))
         if savepdf:
             savefilepath += ".pdf"
         else:

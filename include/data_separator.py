@@ -672,9 +672,9 @@ class Separator:
         k = 0
         for param in self.ordered_params:
             if param.order == k:
-                simfolder += gen_tag(param.name, param.values[j], "_") \
+                simfolder += gen_tag(param.name, param.value, "_") \
                     + "/"
-                datafolder += gen_tag(param.name, param.values[j], "_")
+                datafolder += gen_tag(param.name, param.value, "_")
 
                 if k != len(self.ordered_params)-1:
                     datafolder += "_"

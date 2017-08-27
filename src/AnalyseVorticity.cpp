@@ -64,7 +64,7 @@ void AnalyseVorticity::perform_analysis () {
 
 void AnalyseVorticity::write_analysis_results (const char *outfilepath, 
 					       const char *outfilepath_2, const char *outfilepath_3, 
-                 const char *outfilepath_4) {
+                 const char *outfilepath_4, const char *outfilepath_5) {
 
   vector<vector<vector<double> > > w_bin;
   vector<vector<vector<double> > > vx_bin;
@@ -85,10 +85,13 @@ void AnalyseVorticity::write_analysis_results (const char *outfilepath,
     outfilepath_3 << endl;    
   cout << "Writing the analysis results to the following file: \n" <<
     outfilepath_4 << endl;    
+  cout << "Writing the analysis results to the following file: \n" <<
+    outfilepath_5 << endl;    
   write_vorticity_analysis_data(w_bin, vx_bin, vy_bin, nbins, nvels, outfilepath);
   write_single_analysis_data(energy, outfilepath_2);
   write_single_analysis_data(enstrophy, outfilepath_3);
-  write_2d_analysis_data(energy_per_step, enstrophy_per_step, outfilepath_4);
+  write_1d_analysis_data(energy_per_step, outfilepath_4);
+  write_1d_analysis_data(enstrophy_per_step, outfilepath_5);
   
   return;
 }
@@ -130,7 +133,7 @@ tuple<vector<vector<vector<double> > >, double, double, vector<double>, vector<d
 	      if (ybi < 0) 
 	        ybi = nbins-1;
 	      double wy = vx_bin[step][i][yfi] - vx_bin[step][i][ybi];
-	      
+
         w_bin[step][i][j] = wx-wy;
 	      ens_per_step += (wx-wy)*(wx-wy);
 
@@ -147,13 +150,9 @@ tuple<vector<vector<vector<double> > >, double, double, vector<double>, vector<d
 
   }		    // timesteps
   
-  enstrophy /= nsteps;
   energy /= nsteps;
-  for (int j = 0; j < nsteps; j++) {
-    energy_per_step[j] /= nsteps;
-    enstrophy_per_step[j] /= nsteps;
-  }
-
+  enstrophy /= nsteps;
+  
   return make_tuple(w_bin, energy, enstrophy, energy_per_step, enstrophy_per_step);
 }
 

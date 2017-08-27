@@ -44,13 +44,15 @@ int main (int argc, char *argv[]) {
     char *outfilename_2 = argv[6]; 
     char *outfilename_3 = argv[7];
     char *outfilename_4 = argv[8];
+    char *outfilename_5 = argv[9];
     cout << "Analysis results output file path: " << outfilename_2 << endl;
     cout << "Analysis results output file path: " << outfilename_3 << endl;
     cout << "Analysis results output file path: " << outfilename_4 << endl;
+    cout << "Analysis results output file path: " << outfilename_5 << endl;
     AnalyseVorticity analysis(datafilename, filsorcells);
     analysis.perform_analysis();    
     analysis.write_analysis_results(outfilename, outfilename_2, 
-        outfilename_3, outfilename_4);
+        outfilename_3, outfilename_4, outfilename_5);
   }
   else if (strcmp(analysisname, "Static_struct") == 0) { 	
     AnalyseStaticStruct analysis(datafilename, filsorcells);
