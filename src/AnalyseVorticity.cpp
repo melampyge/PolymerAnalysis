@@ -35,7 +35,7 @@ void AnalyseVorticity::perform_analysis () {
 				                               // to calculate velocity
   int nvels = sim.nsteps-delta;        // number of data points in the velocity arrays  
    
-  double wbin = 12.; 			                          // bin width
+  double wbin = 16.; 			                          // bin width
   int nbins = static_cast<int>(sim.lx/wbin + 0.5);  // number of bins 
   
   vector<vector<vector<double> > > vx_bin;
@@ -49,7 +49,7 @@ void AnalyseVorticity::perform_analysis () {
   double energy;
   double enstrophy;
   vector<double> vx_per_step;
-  vector<double> vy_per_stepe;
+  vector<double> vy_per_step;
   vector<double> enstrophy_per_step;
   tie(w_bin, energy, enstrophy, vx_per_step, 
       vy_per_step, enstrophy_per_step) = calc_vorticity(
@@ -110,7 +110,7 @@ tuple<vector<vector<vector<double> > >, double, double, vector<double>, vector<d
 
   vector<double> vx_per_bin_per_step;
   vector<double> vy_per_bin_per_step;
-  vector<double> enstrophy_per_bin_per_step;
+  vector<double> vorticity_per_bin_per_step;
   double energy = 0.0;
   double enstrophy = 0.0;
   vector<vector<vector<double> > > w_bin(nsteps, vector<vector<double> >(nbins, vector<double>(nbins, 0.)));
@@ -118,6 +118,8 @@ tuple<vector<vector<vector<double> > >, double, double, vector<double>, vector<d
   double vy2_avg = 0.0;
   double vx_avg = 0.0;
   double vy_avg = 0.0;
+  double w2_avg = 0.0;
+  double w_avg = 0.0;
 
   for (int step = 0; step < nsteps; step++) {
 
@@ -127,8 +129,11 @@ tuple<vector<vector<vector<double> > >, double, double, vector<double>, vector<d
     double vy2_per_step = 0.0;
     double vx_per_step = 0.0;
     double vy_per_step = 0.0;
+    double w2_per_step = 0.0;
+    double w_per_step = 0.0;
     double ens_per_step = 0.0;
-        
+    double eng_per_step = 0.0;
+
     for (int i = 0; i < nbins; i++) {
       for (int j = 0; j < nbins; j++) {
 
@@ -148,17 +153,20 @@ tuple<vector<vector<vector<double> > >, double, double, vector<double>, vector<d
 
 	      ens_per_step += (wx-wy)*(wx-wy);
         eng_per_step += vx_bin[step][i][j]*vx_bin[step][i][j] + 
-          vy_avg_bin[step][i][j]*vy_bin[step][i][j];
+          vy_bin[step][i][j]*vy_bin[step][i][j];
 
         vx_per_bin_per_step.push_back(vx_bin[step][i][j]);
         vy_per_bin_per_step.push_back(vy_bin[step][i][j]);
-        enstrophy_per_bin_per_step.push_back((wx-wy)*(wx-wy)/2);
+        vorticity_per_bin_per_step.push_back((wx-wy));
 
         vx2_per_step += vx_bin[step][i][j]*vx_bin[step][i][j]; 
         vy2_per_step += vy_bin[step][i][j]*vy_bin[step][i][j];
         vx_per_step += vx_bin[step][i][j];
         vy_per_step += vy_bin[step][i][j];
-	
+
+        w2_per_step += w_bin[step][i][j]*w_bin[step][i][j];
+        w_per_step += w_bin[step][i][j];
+
       }		// ybins
     }		  // xbins
    
@@ -167,6 +175,8 @@ tuple<vector<vector<vector<double> > >, double, double, vector<double>, vector<d
     vx_avg += vx_per_step/(nbins*nbins);
     vy_avg += vy_per_step/(nbins*nbins);
 
+    w2_avg += w2_per_step/(nbins*nbins);
+    w_avg += w_per_step/(nbins*nbins);
     energy += eng_per_step/(2*nbins*nbins);
     enstrophy += ens_per_step/(2*nbins*nbins);
 
@@ -176,18 +186,22 @@ tuple<vector<vector<vector<double> > >, double, double, vector<double>, vector<d
   vy2_avg /= nsteps;
   vx_avg /= nsteps;
   vy_avg /= nsteps;
+  w2_avg /= nsteps;
+  w_avg /= nsteps;
   energy /= nsteps;
   enstrophy /= nsteps;
   
   double vx_std_dev = sqrt(vx2_avg - vx_avg*vx_avg);
   double vy_std_dev = sqrt(vy2_avg - vy_avg*vy_avg);
+  double w_std_dev = sqrt(w2_avg - w_avg*w_avg);
 
   for (int j = 0; j < vx_per_bin_per_step.size(); j++) {
     vx_per_bin_per_step[j] = (vx_per_bin_per_step[j] - vx_avg)/vx_std_dev;
     vy_per_bin_per_step[j] = (vy_per_bin_per_step[j] - vy_avg)/vy_std_dev;
+    vorticity_per_bin_per_step[j] = (vorticity_per_bin_per_step[j] - w_avg)/w_std_dev;
   }
 
-  return make_tuple(w_bin, energy, enstrophy, vx_per_bin_per_step, vy_per_bin_per_step, enstrophy_per_bin_per_step);
+  return make_tuple(w_bin, energy, enstrophy, vx_per_bin_per_step, vy_per_bin_per_step, vorticity_per_bin_per_step);
 }
 
 /////////////////////////////////////////////////////////////////////////////////

@@ -33,7 +33,7 @@ AnalyseSpatialVelocityCorr::~AnalyseSpatialVelocityCorr () { }
 
 void AnalyseSpatialVelocityCorr::perform_analysis () {
 
-  int delta = 8;                     		   // number of data points between two steps
+  int delta = 4;                     		   // number of data points between two steps
 					       	   // to calculate velocity
   int nvels = sim.nsteps-delta;       		   // number of data points in the velocity array
   int longest_dist = static_cast<int>(sim.lx+2);   // longest distance allowed by the sim. box

@@ -118,8 +118,12 @@ def select_data(data, keys):
     for j, key in enumerate(keys):
         simd[key] = data[key].sim
         kxnorm = 2*np.pi/2/simd[key].avg_radius
-        yd[key] = data[key].data[1]
-        xd[key] = data[key].data[0]/kxnorm
+        if type(data[key].data[0]) != float:
+            yd[key] = data[key].data[1]/data[key].data[0]
+            xd[key] = data[key].data[0]/kxnorm
+        else:
+            yd[key] = np.zeros((100))
+            xd[key] = np.zeros((100))
 
     return xd, yd, simd
 
@@ -142,6 +146,8 @@ def plot_analysis(data, sep, savepdf, *args):
 
     ### plot the data
 
+    down = 35
+    up = -10
     for key in keys:
 
         x = xd[key]
@@ -150,15 +156,16 @@ def plot_analysis(data, sep, savepdf, *args):
 
         ### curve fitting
 
-        popt, pcov = curve_fit(five_thirds, x[10:-10], y[10:-10])
-        yfit = five_thirds(x[10:-10], popt[0])
+        popt, pcov = curve_fit(power_law, x[down:up], y[down:up])
+        yfit = power_law(x[down:up], popt[0], popt[1])
+        print popt[1]
 
         sep.legend_param.assign_physicalvalue(sim)
         label = data_separator.gen_label(sep.legend_param)
-        line0 = ax0.plot(x, y, label=label, \
-                         linewidth=2.0)
-        line1 = ax0.plot(x[10:-10], yfit, '--', label='_nolegend_', \
-                         linewidth=1.0, c='grey')
+        line0 = ax0.plot(x[1:], y[1:], label=label, \
+                         linewidth=3.0)
+        line1 = ax0.plot(x[down:up], yfit, '--', label='_nolegend_', \
+                         linewidth=2.0, c='grey')
 
     ### scales
 
@@ -168,12 +175,12 @@ def plot_analysis(data, sep, savepdf, *args):
     ### title
 
     title = data_separator.gen_title(sep.fixed_param)
-    ax0.set_title(title, fontsize=30)
+    ax0.set_title(title, fontsize=20)
 
     ### side labels
 
-    ax0.set_xlabel(r'$k/k_{2R}$', fontsize=40)
-    ax0.set_ylabel(r'$E(k)$', fontsize=40)
+    ax0.set_xlabel(r'$k/k_{2R}$', fontsize=30)
+    ax0.set_ylabel(r'$E(k)$', fontsize=30)
 
     ### limits
 
@@ -184,7 +191,7 @@ def plot_analysis(data, sep, savepdf, *args):
 
     #ax0.xaxis.set_ticks(np.linspace(0, 15, num_ticks, endpoint=True))
     #ax0.yaxis.set_ticks(np.linspace(0, uplim, num_ticks, endpoint=True))
-    ax0.tick_params(axis='both', which='major', labelsize=30)
+    ax0.tick_params(axis='both', which='major', labelsize=20)
 
     ### legend
 

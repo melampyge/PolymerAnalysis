@@ -36,9 +36,10 @@ public:
   void perform_analysis ();
   void write_analysis_results (const char *outfilepath);
 
+  std::tuple<std::vector<double>, std::vector<double> > calc_static_struct_lin_k (const double * const *x,
+									    const double * const *y);
   std::tuple<std::vector<double>, std::vector<double> > calc_static_struct (const double * const *x,
 									    const double * const *y);
-					  
 };
 
 /////////////////////////////////////////////////////////////////////////////////

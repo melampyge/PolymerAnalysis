@@ -297,8 +297,13 @@ class SimulationCells(Simulation):
                     self.kappa = value.kappa
                     self.areak = value.areak
             self.pe = -1
+            self.eps = -1
+            self.kT = -1
+            self.areak = -1
+            self.xil = -1
             self.npols = 6000
             self.avg_radius = 3.1
+            self.tau_diff = 400.0
 
         return
 
@@ -329,9 +334,12 @@ class SimulationCells(Simulation):
     def gen_key_params(self):
         """ generate key parameters that help the mapping of the phase space"""
 
+        #key_params = ([('eps', self.eps), \
+        #               ('f_m', self.fp), ('kappa_A', self.areak), \
+        #               ('kappa_B', self.kappa)])
         key_params = ([('eps', self.eps), \
-                       ('f_m', self.fp), ('kappa_A', self.areak), \
-                       ('kappa_B', self.kappa)])
+                       ('fp', self.fp), ('areak', self.areak), \
+                       ('kappa', self.kappa)])
         self.phase_params = key_params
 
         return

@@ -170,7 +170,7 @@ class PropulsionForce:
     def set_predef_values(self, simtype):
 
         if simtype == "cells":
-            self.assign_values([0.5, 1.0, 3.0, 5.0, 10.0])
+            self.assign_values([0.5, 1.0, 3.0, 5.0, 10.0, 20.0])
         elif simtype == "bifils":
             pass
         elif simtype == "highfils":
@@ -659,7 +659,7 @@ class Separator:
                     sim = data_structures.SimulationFilaments(simfolder)
                 datafile = datafolder + ".txt"
                 analysisdata = read_fnc(datafile)
-                self.data[(vali, valj)] = Analysis(analysisdata)
+                self.data[(vali, valj)] = Analysis(sim, analysisdata)
 
         return
 

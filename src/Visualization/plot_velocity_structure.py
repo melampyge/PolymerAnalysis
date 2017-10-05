@@ -15,6 +15,7 @@ Created on Fri Jul 14 17:05:32 2017
 import sys
 sys.path.append('../../include')
 
+import os
 import numpy as np
 import argparse
 import matplotlib as mpl
@@ -118,6 +119,40 @@ def select_data(data, keys):
 
 ##############################################################################
 
+def extract_vortex_size(xd, yd, simd, keys):
+    """ extract and write the vortex size"""
+
+    base = "/usr/users/iff_th2/duman/DATA/Vortex_size/"
+    os.system("mkdir -p " + base)
+    base += "Vortex_size_"
+    corr_length = {}
+    for j, key in enumerate(keys):
+        sim = simd[key]
+        x = xd[key]
+        y = yd[key]
+
+        if sim.pe is -1:
+            continue
+
+        max_val = max(y)
+        if max_val > 0.001:
+            val = x[y==max_val][0]
+        else:
+            val = 0.
+        print max_val, val
+        path = "eps_" + str(sim.eps) + "_fp_" + str(sim.fp) + \
+            "_areak_" + str(sim.areak) + "_kappa_" + str(sim.kappa) + ".txt"
+        flpath = base + path
+        print flpath
+
+        fl = open(flpath, "w")
+        fl.write(str(val) + "\n")
+        fl.close()
+
+    return
+
+##############################################################################
+
 @plotter.plot_2d
 def plot_analysis(data, sep, savepdf, *args):
     """ plot the analysis data specific for this analysis"""
@@ -133,12 +168,16 @@ def plot_analysis(data, sep, savepdf, *args):
     avg_radius = gsim.avg_radius
     data_separator.assign_physicalvalues(sep.fixed_param, gsim)
 
+    ### perform extra analysis
+
+    extract_vortex_size(xd, yd, simd, keys)
+
     ### plot the data
 
     for key in keys:
 
-        x = xd[key][4:]
-        y = yd[key][4:]
+        x = xd[key][6:]
+        y = yd[key][6:]
         sim = simd[key]
 
         ### curve fitting
@@ -150,24 +189,24 @@ def plot_analysis(data, sep, savepdf, *args):
         sep.legend_param.assign_physicalvalue(sim)
         label = data_separator.gen_label(sep.legend_param)
         line0 = ax0.plot(x, y, label=label, \
-                         linewidth=2.0)
-        line1 = ax0.plot(x[10:-300], yfit, "--", c='grey', \
-                         label="_nolegend_", linewidth=1.0)
+                         linewidth=3.0)
+        #line1 = ax0.plot(x[10:-300], yfit, "--", c='grey', \
+        #                 label="_nolegend_", linewidth=2.0)
 
     ### scales
 
-    ax0.set_xscale('log')
-    ax0.set_yscale('log')
+    #ax0.set_xscale('log')
+    #ax0.set_yscale('log')
 
     ### title
 
     title = data_separator.gen_title(sep.fixed_param)
-    ax0.set_title(title, fontsize=30)
+    ax0.set_title(title, fontsize=20)
 
     ### side labels
 
-    ax0.set_xlabel(r'$r/R$', fontsize=40)
-    ax0.set_ylabel(r'$\delta v_{\perp}^{2}$', fontsize=40)
+    ax0.set_xlabel(r'r/R', fontsize=30)
+    ax0.set_ylabel(r'$\delta v_{||}^{4}$', fontsize=30)
 
     ### limits
 
@@ -178,11 +217,11 @@ def plot_analysis(data, sep, savepdf, *args):
 
     #ax0.xaxis.set_ticks(np.linspace(0, 15, num_ticks, endpoint=True))
     #ax0.yaxis.set_ticks(np.linspace(0, uplim, num_ticks, endpoint=True))
-    ax0.tick_params(axis='both', which='major', labelsize=30)
+    ax0.tick_params(axis='both', which='major', labelsize=20)
 
     ### legend
 
-    ax0.legend(bbox_to_anchor=(0.05, 0., 0.65, 1.), loc=3, borderaxespad=0., \
+    ax0.legend(bbox_to_anchor=(0.05, 0., 0.65, 1.), loc=1, borderaxespad=0., \
         prop={'size': 20}, mode="expand", frameon=False)
 
     return fig

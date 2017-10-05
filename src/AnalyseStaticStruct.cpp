@@ -60,7 +60,7 @@ void AnalyseStaticStruct::write_analysis_results (const char *outfilepath) {
 
 /////////////////////////////////////////////////////////////////////////////////
 
-tuple<vector<double>, vector<double> > AnalyseStaticStruct::calc_static_struct (const double * const *x,
+tuple<vector<double>, vector<double> > AnalyseStaticStruct::calc_static_struct_lin_k (const double * const *x,
 										const double * const *y) {
   /* calculate static structure factor per timestep with a running average */
 
@@ -126,6 +126,86 @@ tuple<vector<double>, vector<double> > AnalyseStaticStruct::calc_static_struct (
   }  
   
   return make_tuple(kvec, Sk);
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+
+tuple<vector<double>, vector<double> > AnalyseStaticStruct::calc_static_struct (const double * const *x,
+										const double * const *y) {
+  /* calculate static structure factor per timestep with a running average */
+
+  // allocate the arrays and set preliminary information
+
+  double delk = 2.*pi/sim.lx;
+  int njump = 5;
+  int ndata = static_cast<int>(sim.lx);
+  double lamda_min = 4.; 
+  double lamda_max = sim.lx;
+  double kmax = 2*pi/lamda_min;
+  double kmin = 2*pi/lamda_max;
+  int Nmax = 100;
+   
+  kmax = log(kmax);
+  kmin = log(kmin);  
+  double wbin = (kmax-kmin)/Nmax;
+
+  vector<double> sk(Nmax, 0.);
+  vector<double> kvec(Nmax);
+
+  int nks = 12;
+  vector<double> kxs(nks);
+  vector<double> kys(nks);
+  for (int j = 0; j < nks; j++) {
+    kxs[j] = cos(2*pi*j/nks);
+    kys[j] = sin(2*pi*j/nks);
+  }
+
+  cout << "delta k = " << delk << "\n" << "wbin = " << wbin << "\n" <<
+    "kmin = " << exp(kmin) << "\n" << "kmax = " << exp(kmax) << "\n" << 
+    "Nmax = " << Nmax << "\n" << endl;
+  
+  // populate log-spaced absolute value of the k vectors
+  
+  for (int j = 0; j < Nmax; j++) kvec[j] = kmin + j*wbin;
+  for (int j = 0; j < Nmax; j++) kvec[j] = exp(kvec[j]);
+  
+  for (int step = 0; step < sim.nsteps; step += njump) {
+    
+    cout << "step / nsteps: " << step << " / " << sim.nsteps << endl;
+    
+    for (int k = 0; k < Nmax; k++) {
+	    double cost = 0.0; 
+      double sint = 0.0;
+
+	    for (int n = 0; n < nks; n++) {
+	      double kxval = kvec[k]*kxs[n];
+        double kyval = kvec[k]*kys[n];
+
+	      omp_set_num_threads(4);
+	      #pragma omp parallel for reduction(+:cost,sint)
+	      for (int j = 0; j < sim.npols; j++) {
+	        double dotp = kxval*x[step][j] + kyval*y[step][j];
+	        cost += cos(dotp);
+	        sint += sin(dotp);
+    
+	      } // particle loop
+
+	    sk[k] += (cost*cost + sint*sint)/nks;
+
+	    } // circular k loop
+		
+    } // absolute value of k loop
+  
+  } // timesteps
+  
+  // perform the normalization
+  
+  double totalData = sim.nsteps/njump;
+  for (int j = 0; j < Nmax; j++)  { 
+    sk[j] /= (sim.npols*totalData); 
+  }  
+  
+  return make_tuple(kvec, sk);
 }
 
 /////////////////////////////////////////////////////////////////////////////////

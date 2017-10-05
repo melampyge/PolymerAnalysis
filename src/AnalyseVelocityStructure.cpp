@@ -55,7 +55,7 @@ void AnalyseVelocityStructure::write_analysis_results (const char *outfilepath) 
 tuple8 AnalyseVelocityStructure::calc_vel_structure(const double * const *x,
 		                                      				  const double * const *y) {
   
-  int delta = 8;                     		   // number of data points between two steps
+  int delta = 4;                     		   // number of data points between two steps
 					       	                         // to calculate velocity
   double delt = delta*sim.dt;
   int nvels = sim.nsteps-delta;       		 // number of data points in the velocity array
@@ -182,3 +182,4 @@ tuple8 AnalyseVelocityStructure::calc_vel_structure(const double * const *x,
 }
 
 /////////////////////////////////////////////////////////////////////////////////
+

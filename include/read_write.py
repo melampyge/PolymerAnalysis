@@ -15,6 +15,7 @@ import os
 import h5py
 import misc_tools
 import data_structures
+import data_separator
 
 ##############################################################################
 
@@ -26,8 +27,14 @@ def write_2d_analysis_data(results, savebase, analysisname, sim):
     base = savebase + analysisname + '/'
     os.system("mkdir -p " + base)
     base += analysisname + '_'
-    folderpath = misc_tools.gen_folder_path(base, '_', sim.phase_params)
-    fpath = folderpath + '.txt'
+    for j in range(len(sim.phase_params)):
+        tag = data_separator.gen_tag(\
+            sim.phase_params[j][0], sim.phase_params[j][1], "_")
+        base += tag
+        if j != len(sim.phase_params)-1:
+            base += "_"
+    fpath = base + '.txt'
+    print fpath
 
     ### write the data
 

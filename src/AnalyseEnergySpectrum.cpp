@@ -35,24 +35,24 @@ void AnalyseEnergySpectrum::perform_analysis () {
 					       	                         // to calculate velocity
   int nvels = sim.nsteps-delta;       	   // number of data points in the velocity array
   int longest_dist = static_cast<int>(sim.lx+2);   // longest distance allowed by the sim. box
-  //vector<double> vx;
-  //vector<double> vy;
-  //tie(vx, vy) = calc_velocity(polymers.x, polymers.y, delta, nvels);
-  //vector<double> cvv = calc_sp_vel_corr(polymers.x, polymers.y, vx, vy, delta, longest_dist, nvels);
-  //results = calc_energy_spectrum(cvv, nvels, sim.npols);  
+  vector<double> vx;
+  vector<double> vy;
+  tie(vx, vy) = calc_velocity(polymers.x, polymers.y, delta, nvels);
+  vector<double> cvv = calc_sp_vel_corr(polymers.x, polymers.y, vx, vy, delta, longest_dist, nvels);
+  results = calc_energy_spectrum(cvv, nvels, sim.npols);  
   //results = calc_energy_spectrum_direct(delta, nvels, sim.npols);  
   
-  double wbin = 12.; 			                          // bin width
-  int nbins = static_cast<int>(sim.lx/wbin + 0.5);  // number of bins 
-  
-  vector<vector<vector<double> > > vx_bin;
-  vector<vector<vector<double> > > vy_bin;
-  tie(vx_bin, vy_bin) = get_velocity_grid(
-      polymers.x, polymers.y, nvels, delta,
-      sim.dt, sim.lx, sim.ly, sim.npols, 
-      wbin, nbins);
+  //double wbin = 12.; 			                          // bin width
+  //int nbins = static_cast<int>(sim.lx/wbin + 0.5);  // number of bins 
+  //
+  //vector<vector<vector<double> > > vx_bin;
+  //vector<vector<vector<double> > > vy_bin;
+  //tie(vx_bin, vy_bin) = get_velocity_grid(
+  //    polymers.x, polymers.y, nvels, delta,
+  //    sim.dt, sim.lx, sim.ly, sim.npols, 
+  //    wbin, nbins);
  
-  results = calc_energy_spectrum_direct_2(vx_bin, vy_bin, delta, nvels, nbins);
+  //results = calc_energy_spectrum_direct_2(vx_bin, vy_bin, delta, nvels, nbins);
 
   return;
 }
