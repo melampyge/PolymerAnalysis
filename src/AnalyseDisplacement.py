@@ -28,11 +28,11 @@ def calculate_drift_subtracted_displacements(polymers, sim):
     d = 5
 
     xd = xu[d:,0,:]-xu[:-d,0,:]
-    #xd_mean = np.mean(xd, axis=1)
+    xd_mean = np.mean(xd, axis=1)
     yd = xu[d:,1,:]-xu[:-d,1,:]
-    #yd_mean = np.mean(yd, axis=1)
-    #xd -= xd_mean[:,None]
-    #yd -= yd_mean[:, None]
+    yd_mean = np.mean(yd, axis=1)
+    xd -= xd_mean[:,None]
+    yd -= yd_mean[:, None]
     disp = xd**2 + yd**2
     disp = disp.flatten()
 
