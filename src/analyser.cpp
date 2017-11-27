@@ -99,6 +99,11 @@ int main (int argc, char *argv[]) {
     analysis.perform_analysis();
     analysis.write_analysis_results(outfilename);
   }
+  else if (strcmp(analysisname, "Gyration_tensor") == 0) {
+    AnalyseGyrationTensor analysis(datafilename, filsorcells);
+    analysis.perform_analysis();
+    analysis.write_analysis_results(outfilename);
+  }
 
   return 0;
 }

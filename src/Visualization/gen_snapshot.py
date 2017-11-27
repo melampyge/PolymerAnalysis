@@ -106,7 +106,13 @@ def plot_frames(beads, sim, ti, tf, savebase, colorid, savepdf):
                                               sim, colorid)
     full_box_downlim, full_box_uplim = set_plot_props(sim)
     os.system("mkdir -p " + savebase)
-    savebase = data_separator.gen_folder_path(savebase, '_', sim.phase_params)
+    for j in range(len(sim.phase_params)):
+        tag = data_separator.gen_tag(\
+            sim.phase_params[j][0], sim.phase_params[j][1], "_")
+        savebase += tag
+        if j != len(sim.phase_params)-1:
+            savebase += "_"
+    print savebase
     os.system("mkdir -p " + savebase)
 
     for step in np.arange(ti, tf):

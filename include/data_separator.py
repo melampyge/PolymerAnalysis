@@ -106,7 +106,7 @@ class BendingRigidity:
 
     def assign_physicalvalue(self, sim):
 
-        self.physicalvalue = "{0:.1f}".format(round(sim.xil))
+        self.physicalvalue = "{0:.2f}".format(sim.xil)
 
         return
 
@@ -157,7 +157,7 @@ class PropulsionForce:
 
     def assign_physicalvalue(self, sim):
 
-        self.physicalvalue = "{0:.1f}".format(round(sim.pe))
+        self.physicalvalue = "{0:.2f}".format(sim.pe)
 
         return
 
@@ -196,19 +196,19 @@ class Density:
         self.name = 'density'
         self.physicalparamname = 'density'
         self.symbol = r'$\phi$'
-        self.physicalparamsymbol = r'$phi$'
+        self.physicalparamsymbol = r'$\phi$'
 
         return
 
     def assign_value(self, single_value):
 
-        self.value = value
+        self.value = single_value
 
         return
 
     def assign_physicalvalue(self, sim):
 
-        self.physicalvalue = "{0:.1f}".format(round(sim.density))
+        self.physicalvalue = "{0:.2f}".format(sim.density)
 
         return
 
@@ -259,7 +259,7 @@ class AreaCompressionModulus:
 
     def assign_physicalvalue(self, sim):
 
-        self.physicalvalue = "{0:.1f}".format(round(sim.areak))
+        self.physicalvalue = "{0:.1f}".format(sim.areak)
 
         return
 
@@ -306,7 +306,7 @@ class InterEnergy:
 
     def assign_physicalvalue(self, sim):
 
-        self.physicalvalue = "{0:.1f}".format(round(sim.eps/sim.kT))
+        self.physicalvalue = "{0:.2f}".format(sim.eps/sim.kT)
 
         return
 
@@ -549,9 +549,9 @@ class Separator:
             self.savefolderbase += "Bidisperse_Filaments/PLOTS/"
 
         elif self.sim_type == "highfils":
-            self.simfolderbase += "HighDense_Filaments/Simulations/"
-            self.datafolderbase += "HighDense_Filaments/DATA/"
-            self.savefolderbase += "HighDense_Filaments/PLOTS/"
+            self.simfolderbase += "HighDens_Filaments/Simulations/"
+            self.datafolderbase += "HighDens_Filaments/DATA/"
+            self.savefolderbase += "HighDens_Filaments/PLOTS/"
 
         else:
             raise ValueError("Simulation type is chosen wrongly")
@@ -658,6 +658,7 @@ class Separator:
                 else:
                     sim = data_structures.SimulationFilaments(simfolder)
                 datafile = datafolder + ".txt"
+                print datafile
                 analysisdata = read_fnc(datafile)
                 self.data[(vali, valj)] = Analysis(sim, analysisdata)
 

@@ -165,12 +165,14 @@ def plot_analysis(data, sep, savepdf, *args):
 
     ### side labels
 
-    ax0.set_xlabel(r'r/R', fontsize=30)
+    ax0.set_xlabel(r'r/L', fontsize=30)
+    #ax0.set_xlabel(r'r/R', fontsize=30)
     ax0.set_ylabel(r'g(r)', fontsize=30)
 
     ### limits
 
-    ax0.set_xlim((0, 15.0))
+    ax0.set_xlim((0, 2.0))
+    #ax0.set_xlim((0, 15.0))
     #ax0.set_xlim((0, gsim.lx/2./avg_radius))
     #ax0.set_ylim(())
 

@@ -122,7 +122,7 @@ def select_data(data, keys):
 def extract_vortex_size(xd, yd, simd, keys):
     """ extract and write the vortex size"""
 
-    base = "/usr/users/iff_th2/duman/DATA/Vortex_size/"
+    base = "/usr/users/iff_th2/duman/Cells_in_LAMMPS/DATA/Vortex_size/"
     os.system("mkdir -p " + base)
     base += "Vortex_size_"
     corr_length = {}

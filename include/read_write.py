@@ -19,6 +19,64 @@ import data_separator
 
 ##############################################################################
 
+def write_single_analysis_data(results, savebase, analysisname, sim):
+    """ write single analysis data to the corresponding file"""
+
+    ### create the path
+
+    base = savebase + analysisname + '/'
+    os.system("mkdir -p " + base)
+    base += analysisname + '_'
+    for j in range(len(sim.phase_params)):
+        tag = data_separator.gen_tag(\
+            sim.phase_params[j][0], sim.phase_params[j][1], "_")
+        base += tag
+        if j != len(sim.phase_params)-1:
+            base += "_"
+    fpath = base + '.txt'
+    print fpath
+
+    ### write the data
+
+    fl = open(fpath, 'w')
+    fl.write(str(results) + '\n')
+    fl.close()
+
+    return
+
+##############################################################################
+
+def write_1d_analysis_data(results, savebase, analysisname, sim):
+    """ write 1d analysis data to the corresponding file"""
+
+    ### create the path
+
+    base = savebase + analysisname + '/'
+    os.system("mkdir -p " + base)
+    base += analysisname + '_'
+    for j in range(len(sim.phase_params)):
+        tag = data_separator.gen_tag(\
+            sim.phase_params[j][0], sim.phase_params[j][1], "_")
+        base += tag
+        if j != len(sim.phase_params)-1:
+            base += "_"
+    fpath = base + '.txt'
+    print fpath
+
+    ### write the data
+
+    fl = open(fpath, 'w')
+    x = results
+    N = len(x)
+    for j in range(N):
+        fl.write(str(x[j]) + '\n')
+
+    fl.close()
+
+    return
+
+##############################################################################
+
 def write_2d_analysis_data(results, savebase, analysisname, sim):
     """ write 2d analysis data to the corresponding file"""
 
@@ -47,6 +105,19 @@ def write_2d_analysis_data(results, savebase, analysisname, sim):
     fl.close()
 
     return
+
+##############################################################################
+
+def read_1d_analysis_data(f):
+    """ read 1d analysis data"""
+
+    if os.path.exists(f):
+        data = np.transpose(np.loadtxt(f, dtype=np.float64))
+        x = data
+    else:
+        x = 0.
+
+    return x
 
 ##############################################################################
 

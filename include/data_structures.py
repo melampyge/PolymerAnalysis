@@ -8,6 +8,7 @@ from collections import OrderedDict
 import os
 import h5py
 import misc_tools
+import math
 
 ##############################################################################
 
@@ -56,12 +57,12 @@ class Beads:
         for step in xrange(nsteps):
             k = 0
             for n in xrange(npols):
-                for j in xrange(nbpp[n]-1):
+                for j in xrange(nbpp[n]-2):
                     dr = x[step,:,k+1] - x[step,:,k]
-                    self.ori[step][k] = np.atan2(dr[1], dr[0])
+                    self.ori[step][k] = math.atan2(dr[1], dr[0])
                     k += 1
                 dr = x[step,:,k+1] - x[step,:,k]
-                self.ori[step][k] = np.atan2(dr[1], dr[0])
+                self.ori[step][k] = math.atan2(dr[1], dr[0])
                 k += 1
 
         return
@@ -160,6 +161,7 @@ class SimulationFilaments(Simulation):
             # these are defined from the longest length scale polymers
 
             self.length = self.get_length_of_polymer(self.nbpp[0])
+            self.avg_radius = self.length
             self.pe = self.get_pe_of_polymer(self.nbpp[0])
             self.xil = self.get_xil_of_polymer(self.nbpp[0])
             self.tau_diff = self.length**3 * self.gamma_0 * self.nbpp[0] / self.length \
@@ -193,7 +195,7 @@ class SimulationFilaments(Simulation):
 
         l = self.get_length_of_polymer(nb)
 
-        return self.fp*l**2/self.kT
+        return self.fp*l**2.0/self.kT
 
     def get_xil_of_polymer(self, nb):
         """ calculate the persistence length of the polymer"""
@@ -322,7 +324,7 @@ class SimulationCells(Simulation):
 
         l = self.avg_radius
 
-        return self.fp*l**2/self.kT
+        return self.fp*l**2.0/self.kT
 
     def get_xil_of_polymer(self, nb):
         """ calculate the persistence length of the polymer"""

@@ -89,6 +89,7 @@ add_executable(${exec_name} src/analyser.cpp src/gen_velocity_grid.cpp
   src/AnalyseDensityHistogram.cpp src/AnalyseInterScattering.cpp 
   src/AnalyseSpatialVelocityCorr.cpp src/AnalyseVorticity.cpp 
   src/AnalyseVelocityStructure.cpp src/AnalyseEnergySpectrum.cpp  
+  src/AnalyseGyrationTensor.cpp
   src/data_structures.cpp src/read_write.cpp)
 target_link_libraries(${exec_name} ${HDF5_LIBRARIES} fftw3)
 if(UNIX)

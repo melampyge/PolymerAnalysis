@@ -30,6 +30,7 @@
 #include "AnalyseVorticity.hpp"
 #include "AnalyseVelocityStructure.hpp"
 #include "AnalyseEnergySpectrum.hpp"
+#include "AnalyseGyrationTensor.hpp"
 
 #define pi M_PI
 

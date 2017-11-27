@@ -246,7 +246,8 @@ void write_8d_analysis_data (const std::vector<double> &v1,
       v8[j] << std::endl;
   }
   fl.close();
-
+  
+  return;
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -269,6 +270,29 @@ void write_vorticity_analysis_data (const std::vector<std::vector<std::vector<do
     }
   }
   
+  fl.close();
+  
+  return;
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+
+void write_gyration_tensor_data (const std::vector<double> &v1,
+          const std::vector<std::vector<double> > &v2,
+          const std::vector<std::vector<double> > &v3,
+          const std::vector<std::vector<double> > &v4,
+          const std::vector<std::vector<double> > &v5,
+          const std::vector<std::vector<double> > &v6,
+          const char *outpath) {
+  /* write gyration tensor data to a single outfile */
+
+  std::ofstream fl(outpath);
+  for (unsigned j = 0; j < v1.size(); j++) {
+    for (unsigned n = 0; n < v2[0].size(); n++) {
+      fl << v1[j] << "\t" << v2[j][n] << "\t" << v3[j][n] << "\t" << v4[j][n] <<
+        "\t" << v5[j][n] << "\t" << v6[j][n] << std::endl;
+    }
+  }
   fl.close();
   
   return;

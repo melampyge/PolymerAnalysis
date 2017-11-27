@@ -88,3 +88,14 @@ void write_vorticity_analysis_data (const std::vector<std::vector<std::vector<do
 
 /////////////////////////////////////////////////////////////////////////////////
 
+/* write gyration tensor data to a single outfile */
+void write_gyration_tensor_data (const std::vector<double> &v1,
+          const std::vector<std::vector<double> > &v2,
+          const std::vector<std::vector<double> > &v3,
+          const std::vector<std::vector<double> > &v4,
+          const std::vector<std::vector<double> > &v5,
+          const std::vector<std::vector<double> > &v6,
+          const char *outpath); 
+
+/////////////////////////////////////////////////////////////////////////////////
+
