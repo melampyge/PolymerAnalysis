@@ -2,7 +2,7 @@
 
 A set of data analysis tools to analyse the collective motion of polymers with varying lengths.
 
-Over the course of my PhD, I have written a ton of such analysis tools. This is an attempt to combine all of them in a package aimed at the general analysis of polymers with a *polydisperse* (i.e. changing number of beads) length distribution. The idea is to reduce friction as much as possible when trying first time analysis on a system.  
+Over the course of my education, I have written a ton of such analysis tools. This is an attempt to combine all of them in a package aimed at the general analysis of polymers with a *polydisperse* (i.e. changing number of beads) length distribution. The idea is to reduce friction as much as possible when trying first time analysis on a system.  
 
 The end product will be controlled over C++ with occasional Python usage via Boost::Python. 
 
